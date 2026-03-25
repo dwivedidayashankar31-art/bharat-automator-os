@@ -2,21 +2,41 @@ import { Link, useLocation } from "wouter";
 import {
   BrainCircuit, Network, Leaf, Briefcase, HeartPulse,
   Building2, Fingerprint, Code2, AlertTriangle, ChevronRight, Sun, Moon, MessageSquare,
-  LogIn, LogOut, User, Bot, BarChart3, KeyRound, Home
+  LogIn, LogOut, User, Bot, BarChart3, KeyRound, Home, TrendingUp,
+  Rocket, X, Clock
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@workspace/replit-auth-web";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface SidebarProps {
   onNavigate?: () => void;
 }
 
-const navItems = [
+interface NavItem {
+  href?: string;
+  label: string;
+  icon?: React.ElementType;
+  exact?: boolean;
+  type?: string;
+  comingSoon?: boolean;
+  badge?: string;
+}
+
+const navItems: NavItem[] = [
   { href: "/app", label: "Command Center", icon: BrainCircuit, exact: true },
   { href: "/app/ai-assistant", label: "AI Assistant", icon: MessageSquare },
   { href: "/app/task-automator", label: "Task Automator", icon: Bot },
   { href: "/app/data-science", label: "Data Science", icon: BarChart3 },
+  { href: "/app/profit-engine", label: "Profit Engine", icon: TrendingUp },
   { href: "/app/architecture", label: "Architecture", icon: Network },
   { type: "separator", label: "Sector Agents" },
   { href: "/app/agriculture", label: "Agriculture Agent", icon: Leaf },
@@ -30,12 +50,45 @@ const navItems = [
   { type: "separator", label: "Technical Docs" },
   { href: "/app/boilerplate", label: "Python Boilerplate", icon: Code2 },
   { href: "/app/bottlenecks", label: "Critical Bottlenecks", icon: AlertTriangle },
+  { type: "separator", label: "Coming Soon" },
+  { label: "Agent Marketplace", icon: Rocket, comingSoon: true, badge: "Soon" },
 ];
+
+function ComingSoonModal({ label, onClose }: { label: string; onClose: () => void }) {
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="bg-[#0f1628] border border-primary/20 text-white max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="font-display font-semibold flex items-center gap-2" style={{ letterSpacing: '-0.01em' }}>
+            <Clock size={18} className="text-primary" /> Coming Soon
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground text-[13px]">
+            <span className="text-white font-medium">{label}</span> is currently in development and will be available in the next release.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 pt-1">
+          <div className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl">
+            <Rocket size={18} className="text-primary shrink-0" />
+            <div>
+              <p className="text-[13px] font-semibold text-white">Join the waitlist</p>
+              <p className="text-[11px] text-muted-foreground">We'll notify you when this feature launches.</p>
+            </div>
+          </div>
+          <button onClick={onClose}
+            className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-[13px] font-semibold transition-colors">
+            Got it
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export function Sidebar({ onNavigate }: SidebarProps) {
   const [location] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { user, isAuthenticated, login, logout } = useAuth();
+  const [comingSoonItem, setComingSoonItem] = useState<string | null>(null);
 
   return (
     <div className="h-full flex flex-col overflow-y-auto">
@@ -72,9 +125,28 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             );
           }
 
+          const Icon = item.icon!;
+
+          if (item.comingSoon) {
+            return (
+              <button
+                key={i}
+                onClick={() => setComingSoonItem(item.label)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group text-muted-foreground hover:text-white hover:bg-white/5"
+              >
+                <Icon size={15} className="shrink-0 group-hover:text-primary/70 transition-colors" />
+                <span className="text-[13px] font-medium flex-1 text-left tracking-[-0.01em]">{item.label}</span>
+                {item.badge && (
+                  <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30">
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          }
+
           const href = item.href!;
           const isActive = item.exact ? location === href : location.startsWith(href);
-          const Icon = item.icon!;
 
           return (
             <Link
@@ -176,6 +248,11 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           Back to Landing Page
         </Link>
       </div>
+
+      {/* Coming Soon Modal */}
+      {comingSoonItem && (
+        <ComingSoonModal label={comingSoonItem} onClose={() => setComingSoonItem(null)} />
+      )}
     </div>
   );
 }

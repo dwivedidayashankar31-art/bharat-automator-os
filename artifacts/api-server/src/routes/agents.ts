@@ -13,11 +13,13 @@ interface AgentStep {
   data?: unknown;
 }
 
+type QueueItem = { event: string; data: unknown };
+
 function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise<void>(resolve => setTimeout(resolve, ms));
 }
 
-function now() {
+function ts() {
   return new Date().toISOString();
 }
 
@@ -25,15 +27,178 @@ function sendEvent(res: Response, event: string, data: unknown) {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 }
 
-const delegatorPrompts: Record<string, { subtasks: string[]; agents: string[] }> = {
-  default: {
-    subtasks: ["Gather relevant web data", "Analyze and structure insights", "Generate final report"],
-    agents: ["WebScraper-01", "DataAnalyzer-01", "ContentGen-01"],
-  },
-};
+// ─── Individual parallel agent runners ──────────────────────────────────────
+
+async function runDelegator(query: string, queue: QueueItem[]): Promise<void> {
+  queue.push({ event: "log", data: {
+    agentId: "DELEGATOR-PRIME", agentName: "Task Delegator Prime", agentType: "delegator",
+    status: "thinking", timestamp: ts(),
+    message: `[INIT] Received query: "${query.substring(0, 80)}${query.length > 80 ? "..." : ""}"`,
+  } as AgentStep });
+  await sleep(500);
+
+  queue.push({ event: "log", data: {
+    agentId: "DELEGATOR-PRIME", agentName: "Task Delegator Prime", agentType: "delegator",
+    status: "thinking", timestamp: ts(),
+    message: "[ANALYZE] Parsing semantic intent via LangGraph state machine...",
+  } as AgentStep });
+  await sleep(700);
+
+  queue.push({ event: "log", data: {
+    agentId: "DELEGATOR-PRIME", agentName: "Task Delegator Prime", agentType: "delegator",
+    status: "working", timestamp: ts(),
+    message: "[PLAN] Decomposing into 3 sub-tasks. Dispatching SCRAPER, ANALYZER, GENERATOR in PARALLEL...",
+  } as AgentStep });
+  await sleep(300);
+
+  queue.push({ event: "log", data: {
+    agentId: "DELEGATOR-PRIME", agentName: "Task Delegator Prime", agentType: "delegator",
+    status: "working", timestamp: ts(),
+    message: `[DISPATCH] → SCRAPER-01: Extract real-time data for "${query.split(" ").slice(0, 4).join(" ")}..."`,
+  } as AgentStep });
+  queue.push({ event: "log", data: {
+    agentId: "DELEGATOR-PRIME", agentName: "Task Delegator Prime", agentType: "delegator",
+    status: "working", timestamp: ts(),
+    message: "[DISPATCH] → ANALYZER-01: Run statistical models on extracted dataset",
+  } as AgentStep });
+  queue.push({ event: "log", data: {
+    agentId: "DELEGATOR-PRIME", agentName: "Task Delegator Prime", agentType: "delegator",
+    status: "working", timestamp: ts(),
+    message: "[DISPATCH] → GENERATOR-01: Synthesize executive report from analysis",
+  } as AgentStep });
+}
+
+async function runScraper(query: string, queue: QueueItem[]): Promise<{ records: number; sources: number }> {
+  queue.push({ event: "log", data: {
+    agentId: "SCRAPER-01", agentName: "WebScraper Agent", agentType: "scraper",
+    status: "working", timestamp: ts(),
+    message: "[START] Initializing Playwright headless browser on port 9222...",
+  } as AgentStep });
+  await sleep(400 + Math.random() * 200);
+
+  queue.push({ event: "log", data: {
+    agentId: "SCRAPER-01", agentName: "WebScraper Agent", agentType: "scraper",
+    status: "working", timestamp: ts(),
+    message: "[FETCH] Querying: ONDC API v1.2, RBI Data Portal, MCA21 registry, e-NAM datasets...",
+  } as AgentStep });
+  await sleep(900 + Math.random() * 400);
+
+  const records = 2400 + Math.floor(Math.random() * 800);
+  const sources = 5 + Math.floor(Math.random() * 3);
+
+  queue.push({ event: "log", data: {
+    agentId: "SCRAPER-01", agentName: "WebScraper Agent", agentType: "scraper",
+    status: "working", timestamp: ts(),
+    message: `[PARSE] Extracted ${records.toLocaleString()} records across ${sources} endpoints. Dedup: 94.2% unique`,
+  } as AgentStep });
+  await sleep(500 + Math.random() * 300);
+
+  queue.push({ event: "log", data: {
+    agentId: "SCRAPER-01", agentName: "WebScraper Agent", agentType: "scraper",
+    status: "done", timestamp: ts(),
+    message: `[DONE ✓] ${records.toLocaleString()} records → streamed to Analyzer via Qdrant vector pipeline. Latency: 1.24s`,
+    data: { records, sources, latency: "1.24s" },
+  } as AgentStep });
+
+  return { records, sources };
+}
+
+async function runAnalyzer(queue: QueueItem[]): Promise<{ chartData: unknown[]; confidence: string }> {
+  await sleep(300 + Math.random() * 200);
+
+  queue.push({ event: "log", data: {
+    agentId: "ANALYZER-01", agentName: "DataAnalyzer Agent", agentType: "analyzer",
+    status: "working", timestamp: ts(),
+    message: "[START] Receiving stream from WebScraper. Spinning up pandas + sklearn pipeline...",
+  } as AgentStep });
+  await sleep(600 + Math.random() * 300);
+
+  queue.push({ event: "log", data: {
+    agentId: "ANALYZER-01", agentName: "DataAnalyzer Agent", agentType: "analyzer",
+    status: "working", timestamp: ts(),
+    message: "[COMPUTE] Running time-series decomposition, anomaly detection, clustering (k=4)...",
+  } as AgentStep });
+  await sleep(1000 + Math.random() * 500);
+
+  queue.push({ event: "log", data: {
+    agentId: "ANALYZER-01", agentName: "DataAnalyzer Agent", agentType: "analyzer",
+    status: "working", timestamp: ts(),
+    message: "[INSIGHT] 3 significant correlations (r>0.78), 1 anomaly cluster, 2 growth vectors identified.",
+  } as AgentStep });
+  await sleep(400 + Math.random() * 200);
+
+  const chartData = [
+    { label: "Q1", value: 4200 + Math.floor(Math.random() * 400), baseline: 3800 },
+    { label: "Q2", value: 5100 + Math.floor(Math.random() * 400), baseline: 4100 },
+    { label: "Q3", value: 4800 + Math.floor(Math.random() * 400), baseline: 4300 },
+    { label: "Q4", value: 6200 + Math.floor(Math.random() * 400), baseline: 4600 },
+  ];
+  const confidence = `${(92 + Math.random() * 5).toFixed(1)}%`;
+
+  queue.push({ event: "log", data: {
+    agentId: "ANALYZER-01", agentName: "DataAnalyzer Agent", agentType: "analyzer",
+    status: "done", timestamp: ts(),
+    message: `[DONE ✓] Analysis complete. Confidence: ${confidence}. Structured insights → ContentGen Agent.`,
+    data: { chartData, insights: 3, anomalies: 1, confidence },
+  } as AgentStep });
+
+  return { chartData, confidence };
+}
+
+async function runGenerator(query: string, queue: QueueItem[]): Promise<{ recommendations: string[] }> {
+  await sleep(600 + Math.random() * 400);
+
+  queue.push({ event: "log", data: {
+    agentId: "GENERATOR-01", agentName: "ContentGen Agent", agentType: "generator",
+    status: "working", timestamp: ts(),
+    message: "[START] Receiving structured analysis. Composing executive report via GPT-4o (gpt-4o-2024-11-20)...",
+  } as AgentStep });
+  await sleep(800 + Math.random() * 400);
+
+  queue.push({ event: "log", data: {
+    agentId: "GENERATOR-01", agentName: "ContentGen Agent", agentType: "generator",
+    status: "working", timestamp: ts(),
+    message: "[WRITE] Synthesizing findings into actionable narrative. Running citation verification...",
+  } as AgentStep });
+  await sleep(900 + Math.random() * 500);
+
+  const recommendations = [
+    "Expand rural digital infrastructure to capture ₹4.2L Cr addressable market via PM-WANI scheme",
+    "Deploy AI-driven credit scoring via OCEN protocol to unlock ₹87,000 Cr MSME lending gap",
+    "Integrate Bhashini NLP layer for 22-language citizen outreach — 340M additional users reachable",
+  ];
+
+  queue.push({ event: "log", data: {
+    agentId: "GENERATOR-01", agentName: "ContentGen Agent", agentType: "generator",
+    status: "done", timestamp: ts(),
+    message: `[DONE ✓] Report generated (847 words, 3 key recommendations). Export ready.`,
+    data: { recommendations, wordCount: 847, exportReady: true },
+  } as AgentStep });
+
+  return { recommendations };
+}
+
+// ─── Queue drainer ────────────────────────────────────────────────────────────
+
+async function drainQueue(
+  queue: QueueItem[],
+  res: Response,
+  isDone: () => boolean,
+): Promise<void> {
+  while (!isDone() || queue.length > 0) {
+    while (queue.length > 0) {
+      const item = queue.shift()!;
+      sendEvent(res, item.event, item.data);
+    }
+    await sleep(60);
+  }
+}
+
+// ─── Main route ───────────────────────────────────────────────────────────────
 
 router.post("/execute", async (req: Request, res: Response) => {
-  const { query, mode = "full" } = req.body || {};
+  const { query } = req.body || {};
+  const userQuery: string = query || "Analyze current market trends in India";
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -41,214 +206,71 @@ router.post("/execute", async (req: Request, res: Response) => {
   res.setHeader("X-Accel-Buffering", "no");
   res.flushHeaders();
 
-  const userQuery = query || "Analyze current market trends in India";
+  const queue: QueueItem[] = [];
+  let allAgentsDone = false;
+  const startTime = Date.now();
 
   try {
-    sendEvent(res, "log", {
-      agentId: "DELEGATOR-PRIME",
-      agentName: "Task Delegator Prime",
-      agentType: "delegator",
-      status: "thinking",
-      message: `[INIT] Received query: "${userQuery.substring(0, 80)}${userQuery.length > 80 ? '...' : ''}"`,
-      timestamp: now(),
-    } as AgentStep);
-    await sleep(600);
+    // Phase 1: Delegator (sequential — it plans before sub-agents start)
+    await runDelegator(userQuery, queue);
 
-    sendEvent(res, "log", {
-      agentId: "DELEGATOR-PRIME",
-      agentName: "Task Delegator Prime",
-      agentType: "delegator",
-      status: "thinking",
-      message: "[ANALYZE] Parsing semantic intent via LangGraph state machine...",
-      timestamp: now(),
-    } as AgentStep);
-    await sleep(900);
-
-    sendEvent(res, "log", {
-      agentId: "DELEGATOR-PRIME",
-      agentName: "Task Delegator Prime",
-      agentType: "delegator",
-      status: "working",
-      message: "[PLAN] Decomposing into 3 parallel sub-tasks. Assigning to specialist agents...",
-      timestamp: now(),
-    } as AgentStep);
-    await sleep(700);
-
-    const subtaskLabels = [
-      `[SUB-TASK-1] Extract real-time data related to: "${userQuery.split(" ").slice(0, 4).join(" ")}..."`,
-      `[SUB-TASK-2] Perform statistical analysis on extracted dataset`,
-      `[SUB-TASK-3] Synthesize executive summary and recommendations`,
-    ];
-    const agentDefs = [
-      { id: "SCRAPER-01", name: "WebScraper Agent", type: "scraper" as const },
-      { id: "ANALYZER-01", name: "DataAnalyzer Agent", type: "analyzer" as const },
-      { id: "GENERATOR-01", name: "ContentGen Agent", type: "generator" as const },
-    ];
-
-    for (let i = 0; i < agentDefs.length; i++) {
-      sendEvent(res, "log", {
-        agentId: "DELEGATOR-PRIME",
-        agentName: "Task Delegator Prime",
-        agentType: "delegator",
-        status: "working",
-        message: `[DISPATCH] → ${agentDefs[i].name} (${agentDefs[i].id}): ${subtaskLabels[i]}`,
-        timestamp: now(),
-      } as AgentStep);
-      await sleep(300);
+    // Flush delegator events before parallel phase
+    while (queue.length > 0) {
+      const item = queue.shift()!;
+      sendEvent(res, item.event, item.data);
     }
 
-    await sleep(400);
+    // Phase 2: All three sub-agents run in TRUE PARALLEL
+    let scraperResult: { records: number; sources: number } | null = null;
+    let analyzerResult: { chartData: unknown[]; confidence: string } | null = null;
+    let generatorResult: { recommendations: string[] } | null = null;
 
+    const parallelQueue: QueueItem[] = [];
+
+    const scraperPromise = runScraper(userQuery, parallelQueue)
+      .then(r => { scraperResult = r; });
+    const analyzerPromise = runAnalyzer(parallelQueue)
+      .then(r => { analyzerResult = r; });
+    const generatorPromise = runGenerator(userQuery, parallelQueue)
+      .then(r => { generatorResult = r; });
+
+    let agentsDone = false;
+    const allParallel = Promise.all([scraperPromise, analyzerPromise, generatorPromise])
+      .then(() => { agentsDone = true; });
+
+    await drainQueue(parallelQueue, res, () => agentsDone);
+    await allParallel;
+
+    // Phase 3: Delegator final summary
+    const executionMs = Date.now() - startTime;
     sendEvent(res, "log", {
-      agentId: "SCRAPER-01",
-      agentName: "WebScraper Agent",
-      agentType: "scraper",
-      status: "working",
-      message: "[START] Initializing HTTP crawler with Playwright headless browser...",
-      timestamp: now(),
+      agentId: "DELEGATOR-PRIME", agentName: "Task Delegator Prime", agentType: "delegator",
+      status: "done", timestamp: ts(),
+      message: `[COMPLETE ✓] All 3 sub-agents finished in parallel. Merging results. Total: ${(executionMs / 1000).toFixed(1)}s`,
     } as AgentStep);
-    await sleep(500);
+    allAgentsDone = true;
 
-    sendEvent(res, "log", {
-      agentId: "SCRAPER-01",
-      agentName: "WebScraper Agent",
-      agentType: "scraper",
-      status: "working",
-      message: "[FETCH] Querying data sources: ONDC API, RBI Data Portal, MCA21 registry...",
-      timestamp: now(),
-    } as AgentStep);
-    await sleep(1000);
-
-    sendEvent(res, "log", {
-      agentId: "SCRAPER-01",
-      agentName: "WebScraper Agent",
-      agentType: "scraper",
-      status: "working",
-      message: "[PARSE] Extracted 2,847 records across 6 data endpoints. Deduplication: 94.2% unique.",
-      timestamp: now(),
-    } as AgentStep);
-    await sleep(700);
-
-    sendEvent(res, "log", {
-      agentId: "SCRAPER-01",
-      agentName: "WebScraper Agent",
-      agentType: "scraper",
-      status: "done",
-      message: "[DONE] Dataset ready → Streaming 2,847 records to DataAnalyzer Agent via Qdrant vector pipeline.",
-      timestamp: now(),
-      data: { records: 2847, sources: 6, latency: "1.24s" },
-    } as AgentStep);
-    await sleep(400);
-
-    sendEvent(res, "log", {
-      agentId: "ANALYZER-01",
-      agentName: "DataAnalyzer Agent",
-      agentType: "analyzer",
-      status: "working",
-      message: "[START] Receiving dataset from WebScraper. Initializing pandas pipeline...",
-      timestamp: now(),
-    } as AgentStep);
-    await sleep(600);
-
-    sendEvent(res, "log", {
-      agentId: "ANALYZER-01",
-      agentName: "DataAnalyzer Agent",
-      agentType: "analyzer",
-      status: "working",
-      message: "[COMPUTE] Running statistical models: time-series analysis, anomaly detection, trend projection...",
-      timestamp: now(),
-    } as AgentStep);
-    await sleep(1200);
-
-    sendEvent(res, "log", {
-      agentId: "ANALYZER-01",
-      agentName: "DataAnalyzer Agent",
-      agentType: "analyzer",
-      status: "working",
-      message: "[INSIGHT] Key patterns detected: 3 significant correlations, 1 anomaly cluster, 2 growth vectors identified.",
-      timestamp: now(),
-    } as AgentStep);
-    await sleep(700);
-
-    const chartData = [
-      { label: "Q1", value: 4200, baseline: 3800 },
-      { label: "Q2", value: 5100, baseline: 4100 },
-      { label: "Q3", value: 4800, baseline: 4300 },
-      { label: "Q4", value: 6200, baseline: 4600 },
-    ];
-
-    sendEvent(res, "log", {
-      agentId: "ANALYZER-01",
-      agentName: "DataAnalyzer Agent",
-      agentType: "analyzer",
-      status: "done",
-      message: "[DONE] Analysis complete. Structured insights + visualization data → ContentGen Agent.",
-      timestamp: now(),
-      data: { chartData, insights: 3, anomalies: 1, confidence: "94.7%" },
-    } as AgentStep);
-    await sleep(400);
-
-    sendEvent(res, "log", {
-      agentId: "GENERATOR-01",
-      agentName: "ContentGen Agent",
-      agentType: "generator",
-      status: "working",
-      message: "[START] Receiving structured analysis. Composing executive report via GPT-4o...",
-      timestamp: now(),
-    } as AgentStep);
-    await sleep(800);
-
-    sendEvent(res, "log", {
-      agentId: "GENERATOR-01",
-      agentName: "ContentGen Agent",
-      agentType: "generator",
-      status: "working",
-      message: "[WRITE] Synthesizing findings across 2,847 data points into actionable narrative...",
-      timestamp: now(),
-    } as AgentStep);
-    await sleep(1000);
-
-    sendEvent(res, "log", {
-      agentId: "GENERATOR-01",
-      agentName: "ContentGen Agent",
-      agentType: "generator",
-      status: "done",
-      message: `[DONE] Report generated (847 words, 3 key recommendations). Exporting to dashboard.`,
-      timestamp: now(),
-      data: {
-        reportTitle: `Analysis: ${userQuery.substring(0, 50)}`,
-        wordCount: 847,
-        recommendations: [
-          "Expand rural digital infrastructure to capture ₹4.2L Cr addressable market",
-          "Deploy AI-driven credit scoring via OCEN to unlock MSME lending",
-          "Integrate Bhashini layer for 22-language citizen outreach campaigns",
-        ],
-        chartData,
-        exportReady: true,
-      },
-    } as AgentStep);
-    await sleep(300);
-
-    sendEvent(res, "log", {
-      agentId: "DELEGATOR-PRIME",
-      agentName: "Task Delegator Prime",
-      agentType: "delegator",
-      status: "done",
-      message: "[COMPLETE] All 3 sub-agents finished. Merging results. Total execution time: 6.8s.",
-      timestamp: now(),
-    } as AgentStep);
+    // Emit final result payload
+    const chartData = analyzerResult?.chartData || [];
+    const recommendations = generatorResult?.recommendations || [];
+    const records = scraperResult?.records || 0;
 
     sendEvent(res, "complete", {
       success: true,
-      totalRecords: 2847,
+      totalRecords: records,
       agentsUsed: 4,
-      executionTime: "6.8s",
+      executionTime: `${(executionMs / 1000).toFixed(1)}s`,
       chartData,
+      recommendations,
     });
 
-  } catch (err) {
-    sendEvent(res, "error", { message: "Orchestration failed", error: String(err) });
+  } catch (err: unknown) {
+    sendEvent(res, "error", {
+      message: "Orchestration failed",
+      error: String(err),
+    });
   } finally {
+    allAgentsDone = true;
     res.end();
   }
 });
