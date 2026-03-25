@@ -1,5 +1,5 @@
 import { useGetSystemDiagram, useGetPythonBoilerplate, useGetBottlenecks } from "@workspace/api-client-react";
-import { Network, Code2, AlertTriangle, ShieldAlert } from "lucide-react";
+import { Network, Code2, AlertTriangle, ShieldAlert, GitBranch } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Mermaid } from "@/components/Mermaid";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { MeshFlowDiagram } from "@/components/MeshFlowDiagram";
 
 export default function Architecture() {
   const { data: diagramData, isLoading: diagramLoading } = useGetSystemDiagram();
@@ -21,22 +22,53 @@ export default function Architecture() {
         icon={Network}
       />
 
-      <Tabs defaultValue="diagram" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-black/40 border border-border/50 p-1 rounded-xl mb-8 max-w-2xl">
-          <TabsTrigger value="diagram" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white font-semibold tracking-wide uppercase text-xs py-3">Mesh Diagram</TabsTrigger>
-          <TabsTrigger value="code" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white font-semibold tracking-wide uppercase text-xs py-3">Master Orchestrator</TabsTrigger>
-          <TabsTrigger value="bottlenecks" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white font-semibold tracking-wide uppercase text-xs py-3">Bottlenecks Analysis</TabsTrigger>
+      <Tabs defaultValue="flow" className="w-full">
+        <TabsList className="bg-black/40 border border-border/50 p-1 rounded-xl mb-8 flex flex-wrap gap-1">
+          <TabsTrigger value="flow" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white font-medium text-xs py-2.5 px-4 gap-1.5">
+            <GitBranch size={12} />Mesh Graph
+          </TabsTrigger>
+          <TabsTrigger value="diagram" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white font-medium text-xs py-2.5 px-4">
+            Blueprint
+          </TabsTrigger>
+          <TabsTrigger value="code" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white font-medium text-xs py-2.5 px-4">
+            Orchestrator
+          </TabsTrigger>
+          <TabsTrigger value="bottlenecks" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white font-medium text-xs py-2.5 px-4">
+            Bottlenecks
+          </TabsTrigger>
         </TabsList>
+
+        {/* React Flow Mesh Graph */}
+        <TabsContent value="flow" className="animate-in fade-in">
+          <Card className="glass-panel border-primary/20 overflow-hidden">
+            <CardHeader className="border-b border-white/5 pb-4 bg-white/5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-[16px] font-display font-semibold flex items-center gap-2" style={{ letterSpacing: '-0.01em' }}>
+                    <GitBranch size={16} className="text-primary" /> Unified Agentic Mesh — Interactive Graph
+                  </CardTitle>
+                  <CardDescription className="mt-1 text-white/60 text-[13px]">
+                    Live topology of all agents, data flows, and India Stack connections. Pan and zoom to explore.
+                  </CardDescription>
+                </div>
+                <Badge variant="outline" className="border-primary/30 text-primary bg-primary/10 text-[10px]">React Flow v12</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <MeshFlowDiagram />
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="diagram" className="animate-in fade-in">
           <Card className="glass-panel border-primary/20">
             <CardHeader className="border-b border-white/5 pb-6 bg-white/5">
-              <CardTitle className="text-xl font-display uppercase tracking-widest text-primary">System Blueprint v{diagramData?.version || "1.0"}</CardTitle>
+              <CardTitle className="text-[16px] font-display font-semibold text-primary" style={{ letterSpacing: '-0.01em' }}>System Blueprint v{diagramData?.version || "1.0"}</CardTitle>
               <CardDescription className="mt-2 text-white/70">{diagramData?.description || "Loading blueprint..."}</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 bg-black/40 min-h-[500px]">
               {diagramLoading ? (
-                <div className="h-[500px] flex items-center justify-center text-primary/50 animate-pulse font-mono uppercase tracking-widest">Rendering Blueprint...</div>
+                <div className="h-[500px] flex items-center justify-center text-primary/50 animate-pulse font-mono text-sm">Rendering Blueprint...</div>
               ) : diagramData?.mermaidCode ? (
                 <div className="bg-[#0f172a] p-8 rounded-xl border border-slate-800">
                   <Mermaid chart={diagramData.mermaidCode} />
@@ -53,8 +85,8 @@ export default function Architecture() {
             <CardHeader className="border-b border-white/5 pb-6 bg-white/5">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl font-display tracking-widest text-white flex items-center gap-2">
-                    <Code2 size={20} className="text-primary"/> {pyData?.title || "Python Orchestrator"}
+                  <CardTitle className="text-[16px] font-display font-semibold text-white flex items-center gap-2" style={{ letterSpacing: '-0.01em' }}>
+                    <Code2 size={18} className="text-primary"/> {pyData?.title || "Python Orchestrator"}
                   </CardTitle>
                   <CardDescription className="mt-2 text-white/70">{pyData?.description}</CardDescription>
                 </div>
@@ -63,7 +95,7 @@ export default function Architecture() {
             </CardHeader>
             <div className="p-0 text-sm">
               {pyLoading ? (
-                <div className="p-10 text-center text-primary/50 animate-pulse font-mono uppercase tracking-widest">Loading source code...</div>
+                <div className="p-10 text-center text-primary/50 animate-pulse font-mono text-sm">Loading source code...</div>
               ) : (
                 <SyntaxHighlighter 
                   language="python" 
@@ -82,12 +114,12 @@ export default function Architecture() {
         <TabsContent value="bottlenecks" className="animate-in fade-in">
           <div className="space-y-6">
             <div className="flex items-center justify-between px-2">
-              <h3 className="text-xl font-display font-bold uppercase tracking-widest text-white">Top Critical Bottlenecks</h3>
+              <h3 className="text-xl font-display font-semibold text-white" style={{ letterSpacing: '-0.02em' }}>Top Critical Bottlenecks</h3>
               <span className="text-xs text-muted-foreground font-mono">Last Updated: {bottleData?.lastUpdated && new Date(bottleData.lastUpdated).toLocaleDateString()}</span>
             </div>
             
             {bottleLoading ? (
-              <div className="text-center p-10 text-primary/50 animate-pulse font-mono uppercase tracking-widest">Analyzing bottlenecks...</div>
+              <div className="text-center p-10 text-primary/50 animate-pulse font-mono text-sm">Analyzing bottlenecks...</div>
             ) : (
               <div className="grid grid-cols-1 gap-6">
                 {bottleData?.bottlenecks.map((bn) => (
@@ -108,16 +140,16 @@ export default function Architecture() {
                     </CardHeader>
                     <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div>
-                        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">The Challenge</h4>
+                        <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.08em] mb-3">The Challenge</h4>
                         <p className="text-sm text-white/80 leading-relaxed">{bn.description}</p>
                       </div>
                       <div className="bg-primary/5 border border-primary/20 rounded-xl p-5">
-                        <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
-                          <ShieldAlert size={14} /> Bypass Strategy
+                        <h4 className="text-[11px] font-semibold text-primary uppercase tracking-[0.08em] mb-3 flex items-center gap-2">
+                          <ShieldAlert size={13} /> Bypass Strategy
                         </h4>
                         <p className="text-sm text-white/90 leading-relaxed">{bn.bypassStrategy}</p>
                         <div className="mt-5 text-xs font-mono text-muted-foreground flex items-center gap-2">
-                          <span className="uppercase tracking-widest">Est. Resolution:</span>
+                          <span className="uppercase tracking-widest text-[10px]">Est. Resolution:</span>
                           <Badge variant="secondary" className="bg-white/5 border-white/10">{bn.estimatedResolutionTime}</Badge>
                         </div>
                       </div>

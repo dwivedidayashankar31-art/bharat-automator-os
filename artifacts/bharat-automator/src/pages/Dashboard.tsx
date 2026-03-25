@@ -1,5 +1,5 @@
 import { useGetOrchestratorStatus, useDispatchAgent, useListTasks } from "@workspace/api-client-react";
-import { BrainCircuit, Activity, Cpu, Play, Layers, Clock, Zap, Leaf, Briefcase, HeartPulse, Building2, Terminal, Fingerprint, ShieldCheck, Banknote } from "lucide-react";
+import { BrainCircuit, Activity, Cpu, Play, Layers, Clock, Zap, Leaf, Briefcase, HeartPulse, Building2, Terminal, Fingerprint, ShieldCheck, Banknote, Server, MemoryStick, Gauge, Wifi } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,96 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+
+interface SystemHealth {
+  uptime: number;
+  memory: { heapUsed: number; heapTotal: number; rss: number; external: number };
+  latency: { avg: number; p95: number; unit: string };
+  agents: { active: number; queued: number; total: number };
+  nodeVersion: string;
+  timestamp: string;
+}
+
+function SystemHealthMonitor() {
+  const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const { data, isLoading } = useQuery<SystemHealth>({
+    queryKey: ["system-health"],
+    queryFn: () => fetch(`${base}/api/system`).then(r => r.json()),
+    refetchInterval: 3000,
+  });
+
+  const memPct = data ? Math.round((data.memory.heapUsed / data.memory.heapTotal) * 100) : 0;
+  const latencyOk = data ? data.latency.avg < 50 : true;
+  const memOk = memPct < 75;
+
+  const bars = [
+    { label: "API Latency", value: data?.latency.avg ?? 0, unit: "ms", max: 200, color: latencyOk ? "bg-emerald-500" : "bg-yellow-500", icon: <Gauge size={13} /> },
+    { label: "p95 Latency", value: data?.latency.p95 ?? 0, unit: "ms", max: 200, color: latencyOk ? "bg-blue-500" : "bg-orange-500", icon: <Wifi size={13} /> },
+    { label: "Heap Used", value: memPct, unit: "%", max: 100, color: memOk ? "bg-purple-500" : "bg-red-500", icon: <MemoryStick size={13} /> },
+    { label: "RSS Memory", value: data?.memory.rss ?? 0, unit: "MB", max: 512, color: "bg-primary", icon: <Server size={13} /> },
+  ];
+
+  return (
+    <Card className="glass-panel border-white/10">
+      <CardHeader className="pb-3 border-b border-white/5">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-[15px] font-display font-semibold flex items-center gap-2" style={{ letterSpacing: '-0.01em' }}>
+            <Server size={16} className="text-primary" /> System Health Monitor
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            {isLoading ? (
+              <Badge className="bg-white/10 text-muted-foreground text-[10px]">Polling...</Badge>
+            ) : (
+              <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[10px] gap-1.5 animate-pulse">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />Live
+              </Badge>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+          {bars.map((bar) => (
+            <div key={bar.label} className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span className={bar.color.replace("bg-", "text-").replace("bg-emerald", "text-emerald").replace("bg-blue", "text-blue").replace("bg-purple", "text-purple")}>{bar.icon}</span>
+                  {bar.label}
+                </div>
+                <span className="text-[12px] font-semibold text-white font-mono">{bar.value}{bar.unit}</span>
+              </div>
+              <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <motion.div
+                  className={`h-full rounded-full ${bar.color}`}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min((bar.value / bar.max) * 100, 100)}%` }}
+                  transition={{ duration: 0.5 }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        {data && (
+          <div className="mt-5 pt-4 border-t border-white/5 grid grid-cols-3 gap-4 text-[11px]">
+            <div className="text-center">
+              <p className="text-muted-foreground/60 mb-0.5">Node.js</p>
+              <p className="text-white font-mono">{data.nodeVersion}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-muted-foreground/60 mb-0.5">Agents Active</p>
+              <p className="text-emerald-400 font-semibold">{data.agents.active} / {data.agents.total}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-muted-foreground/60 mb-0.5">Queue</p>
+              <p className="text-blue-400 font-semibold">{data.agents.queued} tasks</p>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 // Animated counter component
 const AnimatedCounter = ({ value }: { value: number }) => {
@@ -188,6 +278,9 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* System Health Monitor */}
+      <SystemHealthMonitor />
 
       {/* India Stack Status */}
       <div className="flex flex-wrap items-center gap-3 bg-black/40 border border-white/10 p-4 rounded-2xl">

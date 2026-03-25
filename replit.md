@@ -2,7 +2,7 @@
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+Bharat-Automator OS — Unified Agentic Mesh for India's public/private sectors. pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
 ## Stack
 

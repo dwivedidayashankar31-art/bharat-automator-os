@@ -9,12 +9,14 @@ import indiastackRouter from "./indiastack";
 import architectureRouter from "./architecture";
 import openaiRouter from "./openai";
 import authRouter from "./auth";
+import agentsRouter from "./agents";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
 router.use(authRouter);
 router.use("/orchestrator", orchestratorRouter);
+router.use("/agents", agentsRouter);
 router.use("/agriculture", agricultureRouter);
 router.use("/finance", financeRouter);
 router.use("/healthcare", healthcareRouter);

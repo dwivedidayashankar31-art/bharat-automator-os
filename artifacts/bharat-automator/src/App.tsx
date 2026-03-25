@@ -17,6 +17,9 @@ import IndiaStack from "./pages/IndiaStack";
 import Boilerplate from "./pages/Boilerplate";
 import Bottlenecks from "./pages/Bottlenecks";
 import AIAssistant from "./pages/AIAssistant";
+import TaskAutomator from "./pages/TaskAutomator";
+import DataScience from "./pages/DataScience";
+import ApiKeys from "./pages/ApiKeys";
 import NotFound from "./pages/not-found";
 
 const queryClient = new QueryClient({
@@ -34,6 +37,9 @@ function AppRoutes() {
       <Switch>
         <Route path="/app" component={Dashboard} />
         <Route path="/app/ai-assistant" component={AIAssistant} />
+        <Route path="/app/task-automator" component={TaskAutomator} />
+        <Route path="/app/data-science" component={DataScience} />
+        <Route path="/app/api-keys" component={ApiKeys} />
         <Route path="/app/architecture" component={Architecture} />
         <Route path="/app/agriculture" component={Agriculture} />
         <Route path="/app/finance" component={Finance} />

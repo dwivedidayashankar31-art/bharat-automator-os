@@ -78,7 +78,9 @@
   "dependencies": {
     "@workspace/integrations-openai-ai-react": "workspace:*",
     "@workspace/replit-auth-web": "workspace:*",
+    "@xyflow/react": "^12.10.1",
     "mermaid": "^11.13.0",
-    "react-syntax-highlighter": "^16.1.1"
+    "react-syntax-highlighter": "^16.1.1",
+    "xlsx": "^0.18.5"
   }
 }

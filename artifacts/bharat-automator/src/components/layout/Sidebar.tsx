@@ -1,8 +1,8 @@
 import { Link, useLocation } from "wouter";
 import {
   BrainCircuit, Network, Leaf, Briefcase, HeartPulse,
-  Building2, Fingerprint, Code2, AlertTriangle, Home, ChevronRight, Sun, Moon, MessageSquare,
-  LogIn, LogOut, User
+  Building2, Fingerprint, Code2, AlertTriangle, ChevronRight, Sun, Moon, MessageSquare,
+  LogIn, LogOut, User, Bot, BarChart3, KeyRound, Home
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -15,6 +15,8 @@ interface SidebarProps {
 const navItems = [
   { href: "/app", label: "Command Center", icon: BrainCircuit, exact: true },
   { href: "/app/ai-assistant", label: "AI Assistant", icon: MessageSquare },
+  { href: "/app/task-automator", label: "Task Automator", icon: Bot },
+  { href: "/app/data-science", label: "Data Science", icon: BarChart3 },
   { href: "/app/architecture", label: "Architecture", icon: Network },
   { type: "separator", label: "Sector Agents" },
   { href: "/app/agriculture", label: "Agriculture Agent", icon: Leaf },
@@ -23,6 +25,8 @@ const navItems = [
   { href: "/app/governance", label: "Governance Agent", icon: Building2 },
   { type: "separator", label: "India Stack" },
   { href: "/app/indiastack", label: "India Stack", icon: Fingerprint },
+  { type: "separator", label: "Settings" },
+  { href: "/app/api-keys", label: "API Key Manager", icon: KeyRound },
   { type: "separator", label: "Technical Docs" },
   { href: "/app/boilerplate", label: "Python Boilerplate", icon: Code2 },
   { href: "/app/bottlenecks", label: "Critical Bottlenecks", icon: AlertTriangle },
