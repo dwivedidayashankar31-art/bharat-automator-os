@@ -43,15 +43,15 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           className="w-9 h-9 rounded-xl shadow-lg shadow-primary/20 border border-primary/20"
         />
         <div className="flex flex-col">
-          <span className="font-display font-bold text-xl tracking-widest leading-none sidebar-logo-text">
-            BHARAT<span className="text-primary">OS</span>
+          <span className="font-display font-semibold text-[18px] tracking-tight leading-none sidebar-logo-text" style={{ letterSpacing: '0.06em' }}>
+            Bharat<span className="text-primary">OS</span>
           </span>
-          <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold">
+          <span className="text-[10px] text-muted-foreground/60 tracking-wider font-sans font-medium mt-0.5">
             Unified Agentic Mesh
           </span>
         </div>
-        <Badge className="ml-auto text-[9px] bg-primary/20 text-primary border-primary/30 px-1.5 py-0.5">
-          ENTERPRISE
+        <Badge className="ml-auto text-[9px] bg-primary/20 text-primary border-primary/30 px-1.5 py-0.5 font-sans font-semibold tracking-wide">
+          Pro
         </Badge>
       </div>
 
@@ -60,8 +60,8 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         {navItems.map((item, i) => {
           if (item.type === "separator") {
             return (
-              <div key={i} className="pt-4 pb-1.5 px-3">
-                <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground/50">
+              <div key={i} className="pt-5 pb-1.5 px-3">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 font-sans">
                   {item.label}
                 </span>
               </div>
@@ -79,19 +79,19 @@ export function Sidebar({ onNavigate }: SidebarProps) {
               onClick={onNavigate}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${
                 isActive
-                  ? "bg-primary/15 text-white border border-primary/20"
+                  ? "bg-primary/12 text-white border border-primary/20"
                   : "text-muted-foreground hover:text-white hover:bg-white/5"
               }`}
             >
               {isActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary rounded-r-full" />
               )}
               <Icon
-                size={16}
+                size={15}
                 className={`shrink-0 transition-colors ${isActive ? "text-primary" : "group-hover:text-primary/70"}`}
               />
-              <span className="text-sm font-medium flex-1">{item.label}</span>
-              {isActive && <ChevronRight size={14} className="text-primary/50" />}
+              <span className="text-[13px] font-medium flex-1 tracking-[-0.01em]">{item.label}</span>
+              {isActive && <ChevronRight size={13} className="text-primary/40" />}
             </Link>
           );
         })}

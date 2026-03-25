@@ -136,8 +136,8 @@ export default function Dashboard() {
               </div>
               <Badge variant="outline" className="border-primary/30 text-primary text-[10px] uppercase">Status</Badge>
             </div>
-            <div className="text-3xl font-bold font-display tracking-tight text-white mb-1">
-              {statusLoading ? "..." : status.status.toUpperCase()}
+            <div className="text-3xl font-semibold font-display text-white mb-1" style={{ letterSpacing: '-0.02em' }}>
+              {statusLoading ? "..." : status.status.charAt(0).toUpperCase() + status.status.slice(1)}
             </div>
             <div className="text-xs text-primary/80">Memory Layer: {status.memoryLayerStatus}</div>
           </CardContent>
@@ -151,7 +151,7 @@ export default function Dashboard() {
               </div>
               <Badge variant="outline" className="border-blue-500/30 text-blue-400 text-[10px] uppercase">Tasks</Badge>
             </div>
-            <div className="text-3xl font-bold font-display tracking-tight text-white mb-1">
+            <div className="text-3xl font-semibold font-display text-white mb-1" style={{ letterSpacing: '-0.02em' }}>
               <AnimatedCounter value={status.totalTasksExecuted} />
             </div>
             <div className="text-xs text-blue-300/80">Across all autonomous nodes</div>
@@ -166,7 +166,7 @@ export default function Dashboard() {
               </div>
               <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 text-[10px] uppercase">Agents</Badge>
             </div>
-            <div className="text-3xl font-bold font-display tracking-tight text-white mb-1">
+            <div className="text-3xl font-semibold font-display text-white mb-1" style={{ letterSpacing: '-0.02em' }}>
               <AnimatedCounter value={status.activeAgents?.length || 4} />
             </div>
             <div className="text-xs text-emerald-300/80">Active orchestrator threads</div>
@@ -181,7 +181,7 @@ export default function Dashboard() {
               </div>
               <Badge variant="outline" className="border-purple-500/30 text-purple-400 text-[10px] uppercase">Uptime</Badge>
             </div>
-            <div className="text-3xl font-bold font-display tracking-tight text-white mb-1">
+            <div className="text-3xl font-semibold font-display text-white mb-1" style={{ letterSpacing: '-0.02em' }}>
               {statusLoading ? "..." : status.uptime}
             </div>
             <div className="text-xs text-purple-300/80">Continuous network operation</div>
@@ -191,7 +191,7 @@ export default function Dashboard() {
 
       {/* India Stack Status */}
       <div className="flex flex-wrap items-center gap-3 bg-black/40 border border-white/10 p-4 rounded-2xl">
-        <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground mr-4">Stack Sync:</span>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60 mr-3 font-sans">Stack Sync</span>
         {[
           { name: "Aadhaar", icon: Fingerprint, color: "text-orange-500", bg: "bg-orange-500/20" },
           { name: "UPI", icon: Banknote, color: "text-blue-500", bg: "bg-blue-500/20" },
@@ -208,8 +208,8 @@ export default function Dashboard() {
 
       {/* Sector Agents Grid */}
       <div>
-        <h2 className="text-xl font-display font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
-          <Cpu className="text-primary" size={20} /> Agent Control Plane
+        <h2 className="text-xl font-display font-semibold mb-4 flex items-center gap-2.5" style={{ letterSpacing: '-0.02em' }}>
+          <Cpu className="text-primary" size={18} /> Agent Control Plane
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {["agriculture", "finance", "healthcare", "governance"].map((sectorName) => {
@@ -265,8 +265,8 @@ export default function Dashboard() {
       {/* Live Task Feed */}
       <Card className="glass-panel border-white/10 overflow-hidden flex flex-col">
         <CardHeader className="bg-black/30 border-b border-white/10 py-4">
-          <CardTitle className="text-lg font-display uppercase tracking-widest flex items-center gap-2">
-            <Activity className="text-primary animate-pulse" size={20} /> Real-Time Execution Log
+          <CardTitle className="text-[15px] font-display font-semibold flex items-center gap-2.5" style={{ letterSpacing: '-0.01em' }}>
+            <Activity className="text-primary animate-pulse" size={17} /> Real-Time Execution Log
           </CardTitle>
         </CardHeader>
         <div className="overflow-x-auto">

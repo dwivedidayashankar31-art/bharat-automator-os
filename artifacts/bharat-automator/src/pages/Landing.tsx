@@ -32,8 +32,8 @@ export default function Landing() {
       <nav className="relative z-50 flex items-center justify-between px-6 py-5 max-w-7xl mx-auto border-b border-white/5 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="Logo" className="w-10 h-10 rounded-xl" />
-          <span className="font-display font-bold text-2xl tracking-widest text-white">
-            BHARAT<span className="text-primary">OS</span>
+          <span className="font-display font-semibold text-[22px] text-white" style={{ letterSpacing: '0.05em' }}>
+            Bharat<span className="text-primary">OS</span>
           </span>
         </div>
 
@@ -98,24 +98,24 @@ export default function Landing() {
             Powered by India Stack • LangGraph • CrewAI
           </motion.div>
           
-          <motion.h1 variants={itemVariants} className="text-5xl sm:text-7xl font-display font-bold text-white tracking-tight leading-tight mb-6">
+          <motion.h1 variants={itemVariants} className="text-5xl sm:text-7xl font-display font-semibold text-white leading-[1.08] mb-6" style={{ letterSpacing: '-0.03em' }}>
             The Execution Engine <br className="hidden sm:block"/>
             <span className="text-gradient">for Bharat</span>
           </motion.h1>
           
-          <motion.p variants={itemVariants} className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
+          <motion.p variants={itemVariants} className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10" style={{ lineHeight: '1.7' }}>
             India's first Unified Agentic Mesh. 1.4 billion citizens. Zero bureaucracy. Autonomous AI agents seamlessly integrated with Aadhaar, UPI, and DigiLocker.
           </motion.p>
           
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link href="/app">
-              <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-[0_0_30px_rgba(255,107,26,0.4)]">
-                Launch Command Center <ArrowRight size={20} className="ml-2" />
+              <Button size="lg" className="w-full sm:w-auto h-13 px-8 text-[15px] bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl shadow-[0_0_30px_rgba(255,107,26,0.4)] tracking-[-0.01em]">
+                Launch Command Center <ArrowRight size={18} className="ml-2" />
               </Button>
             </Link>
             <Link href="/app/architecture">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 text-lg border-white/20 text-white hover:bg-white/10 rounded-xl">
-                <Terminal size={20} className="mr-2" /> View Architecture
+              <Button size="lg" variant="outline" className="w-full sm:w-auto h-13 px-8 text-[15px] border-white/20 text-white hover:bg-white/10 rounded-xl font-medium tracking-[-0.01em]">
+                <Terminal size={18} className="mr-2" /> View Architecture
               </Button>
             </Link>
           </motion.div>
@@ -127,9 +127,9 @@ export default function Landing() {
               { label: "Digital Twins", value: "1.4M" },
               { label: "Sector Agents", value: "4" }
             ].map((stat, i) => (
-              <div key={i} className="flex flex-col gap-1">
-                <span className="text-3xl sm:text-4xl font-display font-bold text-white">{stat.value}</span>
-                <span className="text-xs sm:text-sm text-muted-foreground uppercase tracking-widest">{stat.label}</span>
+              <div key={i} className="flex flex-col gap-1.5">
+                <span className="text-3xl sm:text-4xl font-display font-semibold text-white" style={{ letterSpacing: '-0.03em' }}>{stat.value}</span>
+                <span className="text-[11px] sm:text-xs text-muted-foreground uppercase tracking-[0.1em] font-medium">{stat.label}</span>
               </div>
             ))}
           </motion.div>
@@ -145,7 +145,7 @@ export default function Landing() {
               <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center border border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
                 <Leaf size={32} />
               </div>
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-white">KrishiBot Alpha — Your AI Mandi</h2>
+              <h2 className="text-3xl md:text-4xl font-display font-semibold text-white" style={{ letterSpacing: '-0.025em' }}>KrishiBot Alpha — Your AI Mandi</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Autonomous IoT yield prediction combined with smart contract trade execution across ONDC and e-NAM. Secures the best prices for farmers with zero intermediaries.
               </p>
@@ -173,7 +173,7 @@ export default function Landing() {
               <div className="w-16 h-16 rounded-2xl bg-blue-500/20 text-blue-500 flex items-center justify-center border border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
                 <Briefcase size={32} />
               </div>
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-white">TaxBot Prime — Zero-Effort Compliance</h2>
+              <h2 className="text-3xl md:text-4xl font-display font-semibold text-white" style={{ letterSpacing: '-0.025em' }}>TaxBot Prime — Zero-Effort Compliance</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Single-click GSTR-3B and ITR filing. The agent fetches invoices, calculates liability, and autonomously bids on global freelance platforms to boost citizen income.
               </p>
@@ -198,7 +198,7 @@ export default function Landing() {
               <div className="w-16 h-16 rounded-2xl bg-red-500/20 text-red-500 flex items-center justify-center border border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
                 <HeartPulse size={32} />
               </div>
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-white">ArogyaBot — Emergency in 60 Seconds</h2>
+              <h2 className="text-3xl md:text-4xl font-display font-semibold text-white" style={{ letterSpacing: '-0.025em' }}>ArogyaBot — Emergency in 60 Seconds</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Direct integration with ABDM (Ayushman Bharat). Fetches patient digital twins instantly and autonomously dispatches emergency services with zero latency.
               </p>
@@ -220,7 +220,7 @@ export default function Landing() {
               <div className="w-16 h-16 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.2)]">
                 <Building2 size={32} />
               </div>
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-white">SarkarBot — Zero Bureaucracy</h2>
+              <h2 className="text-3xl md:text-4xl font-display font-semibold text-white" style={{ letterSpacing: '-0.025em' }}>SarkarBot — Zero Bureaucracy</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Matches citizens with 1,200+ government schemes instantly. Auto-fetches required documents from DigiLocker and applies on their behalf.
               </p>
@@ -242,7 +242,7 @@ export default function Landing() {
       <section id="indiastack" className="py-24 bg-black/40 border-y border-white/5 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-display font-bold text-white mb-4">Deep India Stack Integration</h2>
+            <h2 className="text-3xl font-display font-semibold text-white mb-4" style={{ letterSpacing: '-0.02em' }}>Deep India Stack Integration</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">Native connections to India's core digital public infrastructure.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -272,7 +272,7 @@ export default function Landing() {
       <section id="pricing" className="py-24 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-display font-bold text-white mb-4">Enterprise-Grade. Citizen-First.</h2>
+            <h2 className="text-4xl font-display font-semibold text-white mb-4" style={{ letterSpacing: '-0.025em' }}>Enterprise-Grade. Citizen-First.</h2>
             <p className="text-xl text-muted-foreground">Accessible pricing for everyone.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -322,7 +322,7 @@ export default function Landing() {
       {/* Testimonials */}
       <section id="testimonials" className="py-24 bg-black/30 border-t border-white/5 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-3xl font-display font-bold text-center text-white mb-16">Stories from Bharat</h2>
+          <h2 className="text-3xl font-display font-semibold text-center text-white mb-16" style={{ letterSpacing: '-0.02em' }}>Stories from Bharat</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {

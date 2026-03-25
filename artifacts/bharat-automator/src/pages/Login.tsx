@@ -30,15 +30,15 @@ export default function Login() {
         <Link href="/">
           <div className="flex items-center gap-3 cursor-pointer w-fit">
             <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="Logo" className="w-10 h-10 rounded-xl" />
-            <span className="font-display font-bold text-2xl tracking-widest text-white">
-              BHARAT<span className="text-primary">OS</span>
+            <span className="font-display font-semibold text-[22px] text-white" style={{ letterSpacing: '0.05em' }}>
+              Bharat<span className="text-primary">OS</span>
             </span>
           </div>
         </Link>
 
         <div className="space-y-10 relative z-10">
           <div>
-            <h1 className="text-5xl font-display font-bold text-white leading-tight mb-4">
+            <h1 className="text-5xl font-display font-semibold text-white leading-[1.1] mb-4" style={{ letterSpacing: '-0.025em' }}>
               India ki Digital <br />
               <span className="text-gradient">Nervous System</span>
             </h1>
@@ -82,7 +82,7 @@ export default function Login() {
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-widest uppercase mb-6">
                 <Fingerprint size={12} /> Secure Login
               </div>
-              <h2 className="text-4xl font-display font-bold text-white mb-2">Swagat Hai</h2>
+              <h2 className="text-4xl font-display font-semibold text-white mb-2" style={{ letterSpacing: '-0.02em' }}>Swagat Hai</h2>
               <p className="text-muted-foreground">
                 BharatOS Command Center access karein — secure authentication ke through.
               </p>
