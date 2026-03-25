@@ -1,70 +1,118 @@
 import { Link, useLocation } from "wouter";
-import { BrainCircuit, Network, Leaf, Briefcase, HeartPulse, Building2, Fingerprint } from "lucide-react";
+import {
+  BrainCircuit, Network, Leaf, Briefcase, HeartPulse,
+  Building2, Fingerprint, Code2, AlertTriangle, Home, ChevronRight
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface SidebarProps {
   onNavigate?: () => void;
 }
 
 const navItems = [
-  { href: "/", label: "Command Center", icon: BrainCircuit },
-  { href: "/architecture", label: "Architecture", icon: Network },
-  { href: "/agents/agriculture", label: "Agriculture", icon: Leaf },
-  { href: "/agents/finance", label: "Finance & IT", icon: Briefcase },
-  { href: "/agents/healthcare", label: "Healthcare", icon: HeartPulse },
-  { href: "/agents/governance", label: "Governance", icon: Building2 },
-  { href: "/indiastack", label: "India Stack", icon: Fingerprint },
+  { href: "/app", label: "Command Center", icon: BrainCircuit, exact: true },
+  { href: "/app/architecture", label: "Architecture", icon: Network },
+  { type: "separator", label: "Sector Agents" },
+  { href: "/app/agriculture", label: "Agriculture Agent", icon: Leaf },
+  { href: "/app/finance", label: "Finance & IT Agent", icon: Briefcase },
+  { href: "/app/healthcare", label: "Healthcare Agent", icon: HeartPulse },
+  { href: "/app/governance", label: "Governance Agent", icon: Building2 },
+  { type: "separator", label: "India Stack" },
+  { href: "/app/indiastack", label: "India Stack", icon: Fingerprint },
+  { type: "separator", label: "Technical Docs" },
+  { href: "/app/boilerplate", label: "Python Boilerplate", icon: Code2 },
+  { href: "/app/bottlenecks", label: "Critical Bottlenecks", icon: AlertTriangle },
 ];
 
 export function Sidebar({ onNavigate }: SidebarProps) {
   const [location] = useLocation();
 
   return (
-    <div className="h-full flex flex-col p-4">
-      <div className="flex items-center gap-3 px-2 py-4 mb-6">
-        <img 
-          src={`${import.meta.env.BASE_URL}images/logo.png`} 
-          alt="Bharat Automator Logo" 
-          className="w-10 h-10 rounded-xl shadow-lg shadow-primary/20 border border-primary/20"
+    <div className="h-full flex flex-col overflow-y-auto">
+      {/* Logo */}
+      <div className="flex items-center gap-3 px-5 py-5 border-b border-border/50 shrink-0">
+        <img
+          src={`${import.meta.env.BASE_URL}images/logo.png`}
+          alt="Bharat Automator Logo"
+          className="w-9 h-9 rounded-xl shadow-lg shadow-primary/20 border border-primary/20"
         />
         <div className="flex flex-col">
-          <span className="font-display font-bold text-2xl tracking-widest text-white leading-none">
+          <span className="font-display font-bold text-xl tracking-widest text-white leading-none">
             BHARAT<span className="text-primary">OS</span>
           </span>
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
+          <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold">
             Unified Agentic Mesh
           </span>
         </div>
+        <Badge className="ml-auto text-[9px] bg-primary/20 text-primary border-primary/30 px-1.5 py-0.5">
+          ENTERPRISE
+        </Badge>
       </div>
 
-      <nav className="flex-1 space-y-2">
-        {navItems.map((item) => {
-          const isActive = location === item.href;
+      {/* Nav */}
+      <nav className="flex-1 p-3 space-y-0.5">
+        {navItems.map((item, i) => {
+          if (item.type === "separator") {
+            return (
+              <div key={i} className="pt-4 pb-1.5 px-3">
+                <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground/50">
+                  {item.label}
+                </span>
+              </div>
+            );
+          }
+
+          const href = item.href!;
+          const isActive = item.exact ? location === href : location.startsWith(href);
+          const Icon = item.icon!;
+
           return (
-            <Link 
-              key={item.href}
-              href={item.href}
+            <Link
+              key={href}
+              href={href}
               onClick={onNavigate}
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 group ${
-                isActive 
-                  ? 'bg-gradient-to-r from-primary/20 to-transparent border-l-2 border-primary text-white shadow-lg shadow-primary/5' 
-                  : 'text-muted-foreground hover:text-white hover:bg-white/5 border-l-2 border-transparent'
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${
+                isActive
+                  ? "bg-primary/15 text-white border border-primary/20"
+                  : "text-muted-foreground hover:text-white hover:bg-white/5"
               }`}
             >
-              <item.icon size={20} className={isActive ? "text-primary" : "group-hover:text-primary/70 transition-colors"} />
-              <span className="font-semibold tracking-wide text-sm">{item.label}</span>
+              {isActive && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
+              )}
+              <Icon
+                size={16}
+                className={`shrink-0 transition-colors ${isActive ? "text-primary" : "group-hover:text-primary/70"}`}
+              />
+              <span className="text-sm font-medium flex-1">{item.label}</span>
+              {isActive && <ChevronRight size={14} className="text-primary/50" />}
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-auto pt-6 border-t border-border/50">
-        <div className="bg-card/50 p-4 rounded-xl border border-border">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-bold text-emerald-500 uppercase tracking-wider">System Online</span>
+      {/* Bottom */}
+      <div className="p-3 border-t border-border/50 space-y-2 shrink-0">
+        {/* System status */}
+        <div className="bg-black/30 rounded-lg p-3 border border-border/30">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">System Online</span>
           </div>
-          <p className="text-[11px] text-muted-foreground">Orchestrator Node: DEL-01<br/>Latency: 24ms</p>
+          <p className="text-[10px] text-muted-foreground leading-relaxed">
+            Orchestrator Node: DEL-01<br />
+            Memory: Qdrant v1.9 • Latency: 24ms
+          </p>
         </div>
+
+        {/* Back to home */}
+        <Link
+          href="/"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-muted-foreground hover:text-white hover:bg-white/5 transition-all text-xs"
+        >
+          <Home size={13} />
+          Back to Landing Page
+        </Link>
       </div>
     </div>
   );

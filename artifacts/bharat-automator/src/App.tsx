@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { AppLayout } from "./components/layout/AppLayout";
+import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Architecture from "./pages/Architecture";
 import Agriculture from "./pages/Agriculture";
@@ -11,31 +12,46 @@ import Finance from "./pages/Finance";
 import Healthcare from "./pages/Healthcare";
 import Governance from "./pages/Governance";
 import IndiaStack from "./pages/IndiaStack";
+import Boilerplate from "./pages/Boilerplate";
+import Bottlenecks from "./pages/Bottlenecks";
 import NotFound from "./pages/not-found";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false, // Let failures show gracefully in the dashboard
+      retry: false,
       refetchOnWindowFocus: false,
     },
   },
 });
 
-function Router() {
+function AppRoutes() {
   return (
     <AppLayout>
       <Switch>
-        <Route path="/" component={Dashboard} />
-        <Route path="/architecture" component={Architecture} />
-        <Route path="/agents/agriculture" component={Agriculture} />
-        <Route path="/agents/finance" component={Finance} />
-        <Route path="/agents/healthcare" component={Healthcare} />
-        <Route path="/agents/governance" component={Governance} />
-        <Route path="/indiastack" component={IndiaStack} />
+        <Route path="/app" component={Dashboard} />
+        <Route path="/app/architecture" component={Architecture} />
+        <Route path="/app/agriculture" component={Agriculture} />
+        <Route path="/app/finance" component={Finance} />
+        <Route path="/app/healthcare" component={Healthcare} />
+        <Route path="/app/governance" component={Governance} />
+        <Route path="/app/indiastack" component={IndiaStack} />
+        <Route path="/app/boilerplate" component={Boilerplate} />
+        <Route path="/app/bottlenecks" component={Bottlenecks} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
+  );
+}
+
+function Router() {
+  return (
+    <Switch>
+      <Route path="/" component={Landing} />
+      <Route path="/app/*" component={AppRoutes} />
+      <Route path="/app" component={AppRoutes} />
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 

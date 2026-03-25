@@ -33,36 +33,37 @@
 }
 
 :root {
-  /* Enforcing Dark Mode Government-Grade Dashboard Styling */
-  --background: 226 58% 6%;
+  /* Deep navy background: #0a0e1a */
+  --background: 225 44% 7%;
   --foreground: 210 40% 98%;
   
-  --card: 226 58% 9%;
+  /* Glassmorphism base for cards */
+  --card: 225 44% 10%;
   --card-foreground: 210 40% 98%;
   
-  --popover: 226 58% 9%;
+  --popover: 225 44% 10%;
   --popover-foreground: 210 40% 98%;
   
-  /* Saffron Accent */
-  --primary: 28 100% 55%;
-  --primary-foreground: 28 100% 10%;
+  /* Saffron/orange primary: #FF6B1A */
+  --primary: 21 100% 55%;
+  --primary-foreground: 0 0% 100%;
   
-  /* India Green Secondary */
-  --secondary: 129 60% 35%;
+  /* Deep blue accent: #3b82f6 */
+  --secondary: 217 91% 60%;
   --secondary-foreground: 0 0% 100%;
   
   --muted: 226 58% 14%;
   --muted-foreground: 215 20.2% 65.1%;
   
-  --accent: 28 100% 55%;
-  --accent-foreground: 28 100% 10%;
+  --accent: 217 91% 60%;
+  --accent-foreground: 0 0% 100%;
   
   --destructive: 0 84% 60%;
   --destructive-foreground: 210 40% 98%;
   
   --border: 226 58% 18%;
   --input: 226 58% 18%;
-  --ring: 28 100% 55%;
+  --ring: 21 100% 55%;
   
   --radius: 0.75rem;
 }
@@ -79,23 +80,40 @@
   }
 }
 
-/* Custom Scrollbar for Dashboard feel */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(var(--background));
+  background: #050810;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted));
+  background: rgba(255, 107, 26, 0.4);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--border));
+  background: rgba(255, 107, 26, 0.8);
 }
 
 /* Glassmorphism Utilities */
 .glass-panel {
-  @apply bg-card/60 backdrop-blur-xl border border-border/50 shadow-xl shadow-black/40;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+  @apply rounded-2xl;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-orange-400 to-white;
+}
+
+.bg-mesh {
+  background-color: #0a0e1a;
+  background-image: radial-gradient(rgba(255, 107, 26, 0.1) 1px, transparent 1px),
+  radial-gradient(rgba(255, 107, 26, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
 }
