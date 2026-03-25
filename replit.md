@@ -48,6 +48,18 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 - `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
 - `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
 
+## Artifacts
+
+### `artifacts/bharat-automator` (`@workspace/bharat-automator`)
+
+React + Vite frontend for **Bharat-Automator OS** — The Unified Agentic Mesh command center.
+
+Pages: Command Center dashboard, Architecture (Mermaid.js diagram), Agriculture Agent, Finance & IT Agent, Healthcare Agent, Governance Agent, India Stack Layer.
+
+Frontend packages: framer-motion, mermaid, react-syntax-highlighter, date-fns.
+
+Serves at preview path `/`.
+
 ## Packages
 
 ### `artifacts/api-server` (`@workspace/api-server`)

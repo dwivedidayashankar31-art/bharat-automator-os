@@ -1,0 +1,18 @@
+packages:
+  "framer-motion": "Animations, page transitions, and micro-interactions for a premium feel"
+  "mermaid": "System architecture diagram rendering for the Unified Agentic Mesh"
+  "react-syntax-highlighter": "Code block syntax highlighting for the Python Master Orchestrator boilerplate"
+  "@types/react-syntax-highlighter": "TypeScript definitions for react-syntax-highlighter"
+  "date-fns": "Formatting timestamps in the live task feed"
+
+images:
+  - path: "artifacts/bharat-automator/public/images/hero-bg.png"
+    description: "Abstract dark navy background with glowing saffron and green mesh network nodes representing a digital map of India, extremely technical and futuristic"
+    aspect_ratio: "16:9"
+  - path: "artifacts/bharat-automator/public/images/logo.png"
+    description: "Sleek modern geometric emblem for a government OS, dark background, glowing saffron and white shapes forming a brain integrated with a network mesh"
+    aspect_ratio: "1:1"
+
+notes:
+  - "Assuming React Query hooks are properly exported from @workspace/api-client-react"
+  - "Assuming generated API types like DispatchRequestSector are exported and correctly typed as strings"

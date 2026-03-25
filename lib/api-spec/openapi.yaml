@@ -1,22 +1,35 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
-  description: API specification
+  version: 1.0.0
+  description: Bharat-Automator OS — Unified Agentic Mesh API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: orchestrator
+    description: Central Orchestrator — The Mind of India
+  - name: agriculture
+    description: Agriculture Sector Agent
+  - name: finance
+    description: Finance & IT Sector Agent
+  - name: healthcare
+    description: Healthcare Sector Agent
+  - name: governance
+    description: Governance & Zero-Bureaucracy Agent
+  - name: indiastack
+    description: India Stack integration layer
+  - name: architecture
+    description: Architecture documentation endpoints
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +37,333 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /orchestrator/status:
+    get:
+      operationId: getOrchestratorStatus
+      tags: [orchestrator]
+      summary: Get Central Orchestrator status and active agents
+      responses:
+        "200":
+          description: Orchestrator status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrchestratorStatus"
+
+  /orchestrator/dispatch:
+    post:
+      operationId: dispatchAgent
+      tags: [orchestrator]
+      summary: Dispatch a task to a sector agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DispatchRequest"
+      responses:
+        "200":
+          description: Task dispatched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DispatchResult"
+
+  /orchestrator/tasks:
+    get:
+      operationId: listTasks
+      tags: [orchestrator]
+      summary: List all active and completed agent tasks
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskList"
+
+  /agriculture/predict-yield:
+    post:
+      operationId: predictYield
+      tags: [agriculture]
+      summary: Predict crop yield using IoT sensor data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/YieldPredictionRequest"
+      responses:
+        "200":
+          description: Yield prediction result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YieldPredictionResult"
+
+  /agriculture/execute-trade:
+    post:
+      operationId: executeTrade
+      tags: [agriculture]
+      summary: Autonomously execute crop trade on ONDC/e-NAM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TradeRequest"
+      responses:
+        "200":
+          description: Trade execution result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradeResult"
+
+  /agriculture/market-intelligence:
+    get:
+      operationId: getMarketIntelligence
+      tags: [agriculture]
+      summary: Get live market intelligence for crops
+      responses:
+        "200":
+          description: Market intelligence data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketIntelligence"
+
+  /finance/file-gst:
+    post:
+      operationId: fileGST
+      tags: [finance]
+      summary: Autonomously file GST return
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GSTFilingRequest"
+      responses:
+        "200":
+          description: GST filing result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaxFilingResult"
+
+  /finance/file-income-tax:
+    post:
+      operationId: fileIncomeTax
+      tags: [finance]
+      summary: Autonomously file Income Tax return
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IncomeTaxRequest"
+      responses:
+        "200":
+          description: Income tax filing result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaxFilingResult"
+
+  /finance/bid-freelance:
+    post:
+      operationId: bidFreelance
+      tags: [finance]
+      summary: Autonomously bid on freelance jobs (Contra/Truelancer)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FreelanceBidRequest"
+      responses:
+        "200":
+          description: Freelance bid result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FreelanceBidResult"
+
+  /healthcare/patient-history:
+    get:
+      operationId: getPatientHistory
+      tags: [healthcare]
+      summary: Fetch patient health history via ABDM integration
+      parameters:
+        - name: abhaId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: ABHA Health ID
+      responses:
+        "200":
+          description: Patient health history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientHistory"
+
+  /healthcare/book-emergency:
+    post:
+      operationId: bookEmergencyService
+      tags: [healthcare]
+      summary: Autonomously book fastest available emergency service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmergencyRequest"
+      responses:
+        "200":
+          description: Emergency booking result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyBookingResult"
+
+  /governance/check-eligibility:
+    post:
+      operationId: checkEligibility
+      tags: [governance]
+      summary: Check citizen eligibility for all government schemes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EligibilityRequest"
+      responses:
+        "200":
+          description: Eligibility results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EligibilityResult"
+
+  /governance/apply-scheme:
+    post:
+      operationId: applyScheme
+      tags: [governance]
+      summary: Autonomously apply for a government scheme
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SchemeApplicationRequest"
+      responses:
+        "200":
+          description: Application result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemeApplicationResult"
+
+  /indiastack/auth-aadhaar:
+    post:
+      operationId: authenticateAadhaar
+      tags: [indiastack]
+      summary: Authenticate citizen via Aadhaar OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AadhaarAuthRequest"
+      responses:
+        "200":
+          description: Authentication result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AadhaarAuthResult"
+
+  /indiastack/upi-payment:
+    post:
+      operationId: initiateUpiPayment
+      tags: [indiastack]
+      summary: Initiate a UPI payment for agent-executed transactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpiPaymentRequest"
+      responses:
+        "200":
+          description: Payment result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpiPaymentResult"
+
+  /indiastack/digilocker-docs:
+    get:
+      operationId: fetchDigilockerDocs
+      tags: [indiastack]
+      summary: Fetch citizen documents from DigiLocker
+      parameters:
+        - name: citizenId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Documents list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DigiLockerDocs"
+
+  /architecture/system-diagram:
+    get:
+      operationId: getSystemDiagram
+      tags: [architecture]
+      summary: Get the Mermaid.js system architecture diagram
+      responses:
+        "200":
+          description: Mermaid.js diagram
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SystemDiagram"
+
+  /architecture/python-boilerplate:
+    get:
+      operationId: getPythonBoilerplate
+      tags: [architecture]
+      summary: Get the Python Master Orchestrator boilerplate code
+      responses:
+        "200":
+          description: Python boilerplate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PythonBoilerplate"
+
+  /architecture/bottlenecks:
+    get:
+      operationId: getBottlenecks
+      tags: [architecture]
+      summary: Get top 5 critical bottlenecks and bypass strategies
+      responses:
+        "200":
+          description: Bottlenecks analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BottlenecksAnalysis"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +371,665 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    OrchestratorStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, degraded, offline]
+        activeAgents:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentInfo"
+        totalTasksExecuted:
+          type: integer
+        uptime:
+          type: string
+        memoryLayerStatus:
+          type: string
+        bhashiniStatus:
+          type: string
+      required: [status, activeAgents, totalTasksExecuted, uptime, memoryLayerStatus, bhashiniStatus]
+
+    AgentInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        sector:
+          type: string
+          enum: [agriculture, finance, healthcare, governance]
+        name:
+          type: string
+        status:
+          type: string
+          enum: [idle, running, completed, error]
+        tasksCompleted:
+          type: integer
+        lastActivity:
+          type: string
+      required: [id, sector, name, status, tasksCompleted, lastActivity]
+
+    DispatchRequest:
+      type: object
+      properties:
+        sector:
+          type: string
+          enum: [agriculture, finance, healthcare, governance]
+        taskType:
+          type: string
+        citizenId:
+          type: string
+        payload:
+          type: object
+          additionalProperties: true
+      required: [sector, taskType, citizenId]
+
+    DispatchResult:
+      type: object
+      properties:
+        taskId:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, completed, failed]
+        agentAssigned:
+          type: string
+        estimatedCompletion:
+          type: string
+        message:
+          type: string
+      required: [taskId, status, agentAssigned, message]
+
+    TaskList:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskInfo"
+        total:
+          type: integer
+      required: [tasks, total]
+
+    TaskInfo:
+      type: object
+      properties:
+        taskId:
+          type: string
+        sector:
+          type: string
+        taskType:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, completed, failed]
+        citizenId:
+          type: string
+        startedAt:
+          type: string
+        completedAt:
+          type: string
+        result:
+          type: string
+      required: [taskId, sector, taskType, status, citizenId, startedAt]
+
+    YieldPredictionRequest:
+      type: object
+      properties:
+        farmerId:
+          type: string
+        cropType:
+          type: string
+        fieldArea:
+          type: number
+        soilMoisture:
+          type: number
+        temperature:
+          type: number
+        rainfall:
+          type: number
+        ndviIndex:
+          type: number
+      required: [farmerId, cropType, fieldArea, soilMoisture, temperature, rainfall]
+
+    YieldPredictionResult:
+      type: object
+      properties:
+        farmerId:
+          type: string
+        cropType:
+          type: string
+        predictedYield:
+          type: number
+        unit:
+          type: string
+        confidence:
+          type: number
+        recommendedActions:
+          type: array
+          items:
+            type: string
+        tradeRecommendation:
+          type: string
+        optimalSellDate:
+          type: string
+      required: [farmerId, cropType, predictedYield, unit, confidence, recommendedActions, tradeRecommendation]
+
+    TradeRequest:
+      type: object
+      properties:
+        farmerId:
+          type: string
+        cropType:
+          type: string
+        quantity:
+          type: number
+        minimumPrice:
+          type: number
+        platform:
+          type: string
+          enum: [ONDC, eNAM, both]
+        upiId:
+          type: string
+      required: [farmerId, cropType, quantity, minimumPrice, platform, upiId]
+
+    TradeResult:
+      type: object
+      properties:
+        tradeId:
+          type: string
+        status:
+          type: string
+          enum: [executed, pending, failed]
+        platform:
+          type: string
+        buyer:
+          type: string
+        finalPrice:
+          type: number
+        totalAmount:
+          type: number
+        paymentStatus:
+          type: string
+        estimatedTransfer:
+          type: string
+      required: [tradeId, status, platform, finalPrice, totalAmount, paymentStatus]
+
+    MarketIntelligence:
+      type: object
+      properties:
+        timestamp:
+          type: string
+        crops:
+          type: array
+          items:
+            $ref: "#/components/schemas/CropMarketData"
+      required: [timestamp, crops]
+
+    CropMarketData:
+      type: object
+      properties:
+        crop:
+          type: string
+        currentPrice:
+          type: number
+        predictedPriceNext7Days:
+          type: number
+        trend:
+          type: string
+          enum: [rising, falling, stable]
+        mandis:
+          type: array
+          items:
+            type: string
+        recommendation:
+          type: string
+      required: [crop, currentPrice, predictedPriceNext7Days, trend, mandis, recommendation]
+
+    GSTFilingRequest:
+      type: object
+      properties:
+        gstin:
+          type: string
+        period:
+          type: string
+        invoiceData:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        bankAccountLinked:
+          type: boolean
+      required: [gstin, period, invoiceData, bankAccountLinked]
+
+    IncomeTaxRequest:
+      type: object
+      properties:
+        panNumber:
+          type: string
+        assessmentYear:
+          type: string
+        incomeDetails:
+          type: object
+          additionalProperties: true
+        form16Available:
+          type: boolean
+      required: [panNumber, assessmentYear, incomeDetails, form16Available]
+
+    TaxFilingResult:
+      type: object
+      properties:
+        referenceNumber:
+          type: string
+        status:
+          type: string
+          enum: [filed, pending_verification, error, resubmission_required]
+        filedAt:
+          type: string
+        acknowledgementNumber:
+          type: string
+        refundAmount:
+          type: number
+        nextSteps:
+          type: array
+          items:
+            type: string
+      required: [referenceNumber, status, filedAt, nextSteps]
+
+    FreelanceBidRequest:
+      type: object
+      properties:
+        studentId:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        platforms:
+          type: array
+          items:
+            type: string
+            enum: [Contra, Truelancer, Upwork, Fiverr]
+        minBudget:
+          type: number
+        maxBudgetPerProject:
+          type: number
+        portfolioUrl:
+          type: string
+      required: [studentId, skills, platforms, minBudget]
+
+    FreelanceBidResult:
+      type: object
+      properties:
+        bidsPlaced:
+          type: integer
+        platforms:
+          type: array
+          items:
+            type: string
+        jobsTargeted:
+          type: array
+          items:
+            $ref: "#/components/schemas/JobBid"
+        estimatedResponseTime:
+          type: string
+      required: [bidsPlaced, platforms, jobsTargeted, estimatedResponseTime]
+
+    JobBid:
+      type: object
+      properties:
+        jobId:
+          type: string
+        title:
+          type: string
+        platform:
+          type: string
+        bidAmount:
+          type: number
+        status:
+          type: string
+          enum: [submitted, under_review, won, lost]
+      required: [jobId, title, platform, bidAmount, status]
+
+    PatientHistory:
+      type: object
+      properties:
+        abhaId:
+          type: string
+        name:
+          type: string
+        bloodGroup:
+          type: string
+        allergies:
+          type: array
+          items:
+            type: string
+        conditions:
+          type: array
+          items:
+            type: string
+        medications:
+          type: array
+          items:
+            type: string
+        recentVisits:
+          type: array
+          items:
+            $ref: "#/components/schemas/HealthVisit"
+        vaccinations:
+          type: array
+          items:
+            type: string
+      required: [abhaId, name, bloodGroup, allergies, conditions, medications, recentVisits, vaccinations]
+
+    HealthVisit:
+      type: object
+      properties:
+        date:
+          type: string
+        hospital:
+          type: string
+        doctor:
+          type: string
+        diagnosis:
+          type: string
+        prescription:
+          type: string
+      required: [date, hospital, doctor, diagnosis]
+
+    EmergencyRequest:
+      type: object
+      properties:
+        abhaId:
+          type: string
+        location:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+            address:
+              type: string
+          required: [lat, lng]
+        emergencyType:
+          type: string
+          enum: [cardiac, accident, stroke, maternity, other]
+        severity:
+          type: string
+          enum: [critical, moderate, mild]
+      required: [abhaId, location, emergencyType, severity]
+
+    EmergencyBookingResult:
+      type: object
+      properties:
+        bookingId:
+          type: string
+        ambulanceId:
+          type: string
+        ambulanceType:
+          type: string
+        eta:
+          type: integer
+        driverName:
+          type: string
+        driverPhone:
+          type: string
+        hospitalAssigned:
+          type: string
+        hospitalPhone:
+          type: string
+        patientHistoryShared:
+          type: boolean
+        trackingUrl:
+          type: string
+      required: [bookingId, ambulanceId, ambulanceType, eta, driverName, driverPhone, hospitalAssigned, hospitalPhone, patientHistoryShared]
+
+    EligibilityRequest:
+      type: object
+      properties:
+        citizenId:
+          type: string
+        aadhaarVerified:
+          type: boolean
+        annualIncome:
+          type: number
+        caste:
+          type: string
+        age:
+          type: integer
+        occupation:
+          type: string
+          enum: [farmer, student, unemployed, salaried, self_employed, senior_citizen]
+        state:
+          type: string
+        hasLand:
+          type: boolean
+        bankAccountLinked:
+          type: boolean
+      required: [citizenId, aadhaarVerified, annualIncome, age, occupation, state]
+
+    EligibilityResult:
+      type: object
+      properties:
+        citizenId:
+          type: string
+        eligibleSchemes:
+          type: array
+          items:
+            $ref: "#/components/schemas/SchemeEligibility"
+        totalBenefitValue:
+          type: number
+        autoApplyRecommended:
+          type: array
+          items:
+            type: string
+      required: [citizenId, eligibleSchemes, totalBenefitValue, autoApplyRecommended]
+
+    SchemeEligibility:
+      type: object
+      properties:
+        schemeId:
+          type: string
+        schemeName:
+          type: string
+        ministry:
+          type: string
+        benefitAmount:
+          type: number
+        benefitType:
+          type: string
+          enum: [cash_transfer, subsidy, scholarship, loan, insurance]
+        eligibilityScore:
+          type: number
+        documentsRequired:
+          type: array
+          items:
+            type: string
+        applicationDeadline:
+          type: string
+      required: [schemeId, schemeName, ministry, benefitType, eligibilityScore, documentsRequired]
+
+    SchemeApplicationRequest:
+      type: object
+      properties:
+        citizenId:
+          type: string
+        schemeId:
+          type: string
+        aadhaarVerified:
+          type: boolean
+        digilockerConsent:
+          type: boolean
+      required: [citizenId, schemeId, aadhaarVerified, digilockerConsent]
+
+    SchemeApplicationResult:
+      type: object
+      properties:
+        applicationId:
+          type: string
+        schemeName:
+          type: string
+        status:
+          type: string
+          enum: [submitted, under_review, approved, rejected, documents_pending]
+        submittedAt:
+          type: string
+        docsAutoFetched:
+          type: array
+          items:
+            type: string
+        nextReviewDate:
+          type: string
+        message:
+          type: string
+      required: [applicationId, schemeName, status, submittedAt, docsAutoFetched, message]
+
+    AadhaarAuthRequest:
+      type: object
+      properties:
+        aadhaarNumber:
+          type: string
+        otp:
+          type: string
+        purpose:
+          type: string
+      required: [aadhaarNumber, otp, purpose]
+
+    AadhaarAuthResult:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+        citizenId:
+          type: string
+        tokenExpiry:
+          type: string
+        permissionsGranted:
+          type: array
+          items:
+            type: string
+      required: [authenticated, permissionsGranted]
+
+    UpiPaymentRequest:
+      type: object
+      properties:
+        fromUpiId:
+          type: string
+        toUpiId:
+          type: string
+        amount:
+          type: number
+        purpose:
+          type: string
+        taskId:
+          type: string
+      required: [fromUpiId, toUpiId, amount, purpose]
+
+    UpiPaymentResult:
+      type: object
+      properties:
+        transactionId:
+          type: string
+        status:
+          type: string
+          enum: [success, pending, failed]
+        amount:
+          type: number
+        timestamp:
+          type: string
+        utrNumber:
+          type: string
+      required: [transactionId, status, amount, timestamp]
+
+    DigiLockerDocs:
+      type: object
+      properties:
+        citizenId:
+          type: string
+        documents:
+          type: array
+          items:
+            $ref: "#/components/schemas/DigiLockerDocument"
+      required: [citizenId, documents]
+
+    DigiLockerDocument:
+      type: object
+      properties:
+        docId:
+          type: string
+        docType:
+          type: string
+        issuedBy:
+          type: string
+        issueDate:
+          type: string
+        verificationStatus:
+          type: string
+          enum: [verified, pending, expired]
+      required: [docId, docType, issuedBy, issueDate, verificationStatus]
+
+    SystemDiagram:
+      type: object
+      properties:
+        mermaidCode:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+      required: [mermaidCode, description, version]
+
+    PythonBoilerplate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        code:
+          type: string
+        dependencies:
+          type: array
+          items:
+            type: string
+        notes:
+          type: array
+          items:
+            type: string
+      required: [title, description, code, dependencies, notes]
+
+    BottlenecksAnalysis:
+      type: object
+      properties:
+        bottlenecks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Bottleneck"
+        lastUpdated:
+          type: string
+      required: [bottlenecks, lastUpdated]
+
+    Bottleneck:
+      type: object
+      properties:
+        rank:
+          type: integer
+        title:
+          type: string
+        category:
+          type: string
+          enum: [technical, legal, infrastructure, social, regulatory]
+        severity:
+          type: string
+          enum: [critical, high, medium]
+        description:
+          type: string
+        bypassStrategy:
+          type: string
+        estimatedResolutionTime:
+          type: string
+      required: [rank, title, category, severity, description, bypassStrategy, estimatedResolutionTime]

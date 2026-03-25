@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Bharat-Automator OS"
+version = "1.0.0"
+id = "artifacts/bharat-automator"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20096
+
+[services.development]
+run = "pnpm --filter @workspace/bharat-automator run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/bharat-automator", "run", "build" ]
+publicDir = "artifacts/bharat-automator/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20096"
+BASE_PATH = "/"
