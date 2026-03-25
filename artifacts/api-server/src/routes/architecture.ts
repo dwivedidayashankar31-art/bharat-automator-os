@@ -9,50 +9,50 @@ const router: IRouter = Router();
 
 const MERMAID_DIAGRAM = `
 graph TB
-    subgraph CITIZEN["🌐 Citizen Interface Layer"]
-        VOICE["Bhashini\\n(22 Indian Languages\\nReal-time Voice)"]
-        APP["Bharat-Automator\\nMobile / Web App"]
-        USSD["USSD / SMS\\n(Feature Phone Access)"]
+    subgraph CITIZEN["Citizen Interface Layer"]
+        VOICE["Bhashini Voice\n22 Indian Languages"]
+        APP["Bharat-Automator\nMobile / Web App"]
+        USSD["USSD / SMS\nFeature Phone Access"]
     end
 
-    subgraph INDIASTACK["🇮🇳 India Stack Authentication & Trust Layer"]
-        AADHAAR["Aadhaar Auth\\n(UIDAI OTP)"]
-        UPI["UPI Payments\\n(NPCI Rails)"]
-        DIGI["DigiLocker\\n(Document Vault)"]
-        ABHA["ABDM / ABHA\\n(Health ID)"]
+    subgraph INDIASTACK["India Stack — Auth & Trust Layer"]
+        AADHAAR["Aadhaar Auth\nUIDAI OTP"]
+        UPI["UPI Payments\nNPCI Rails"]
+        DIGI["DigiLocker\nDocument Vault"]
+        ABHA["ABDM / ABHA\nHealth ID"]
     end
 
-    subgraph MIND["🧠 Central Orchestrator — The Mind of India"]
-        ORCH["Master Orchestrator\\n(LangGraph StateGraph)"]
-        MEM["Memory Layer\\n(Qdrant Vector DB)\\n1.4B Digital Twins"]
-        ROUTER["Intent Router\\n(Claude / GPT-4)"]
-        BHASHINI_API["Bhashini API\\nTranslation Engine"]
-        LOG["Audit Ledger\\n(Immutable Logs)"]
+    subgraph MIND["Central Orchestrator — Mind of India"]
+        ORCH["Master Orchestrator\nLangGraph StateGraph"]
+        MEM["Memory Layer\nQdrant Vector DB\n1.4B Digital Twins"]
+        ROUTER["Intent Router\nClaude / GPT-4"]
+        BHASHINI_API["Bhashini API\nTranslation Engine"]
+        LOG["Audit Ledger\nImmutable Logs"]
     end
 
-    subgraph AGENTS["⚡ Specialized Sector Agents (CrewAI Swarm)"]
-        AGR["🌾 KrishiBot\\nAgriculture Agent"]
-        FIN["💰 TaxBot Prime\\nFinance & IT Agent"]
-        HLT["🏥 ArogyaBot\\nHealthcare Agent"]
-        GOV["🏛️ SarkarBot\\nGovernance Agent"]
+    subgraph AGENTS["Specialized Sector Agents — CrewAI Swarm"]
+        AGR["KrishiBot\nAgriculture Agent"]
+        FIN["TaxBot Prime\nFinance & IT Agent"]
+        HLT["ArogyaBot\nHealthcare Agent"]
+        GOV["SarkarBot\nGovernance Agent"]
     end
 
-    subgraph AUTOMATION["🤖 Action & Automation Layer"]
-        PLAYWRIGHT["Browser-Use / Playwright\\n(Legacy Gov Portal Automation)"]
-        ONDC["ONDC API\\n(Open Network)"]
-        ENAM["e-NAM\\n(Electronic Market)"]
-        GSTIN["GSTN API\\n(Tax Portal)"]
-        ITAX["Income Tax Portal\\nAPI / Playwright"]
-        FREELANCE["Contra / Truelancer\\nBid Automation"]
-        AMBULANCE["108 Emergency\\nAmbulance Network"]
-        DIGILOCKER_API["DigiLocker API\\n(Document Fetch)"]
+    subgraph AUTOMATION["Action & Automation Layer"]
+        PLAYWRIGHT["Browser-Use / Playwright\nLegacy Gov Portal Automation"]
+        ONDC["ONDC API\nOpen Network"]
+        ENAM["e-NAM\nElectronic Market"]
+        GSTIN["GSTN API\nTax Portal"]
+        ITAX["Income Tax Portal\nAPI / Playwright"]
+        FREELANCE["Contra / Truelancer\nBid Automation"]
+        AMBULANCE["108 Emergency\nAmbulance Network"]
+        DIGILOCKER_API["DigiLocker API\nDocument Fetch"]
     end
 
-    subgraph IOT["📡 IoT & Data Sources"]
-        SENSOR["Farm IoT Sensors\\n(Soil / Weather)"]
-        SAT["Satellite NDVI\\n(ISRO / Sentinel-2)"]
-        MANDI["Agmarknet\\nMSP Price Feed"]
-        EMR["Hospital EMR\\n(ABDM Compliant)"]
+    subgraph IOT["IoT & Data Sources"]
+        SENSOR["Farm IoT Sensors\nSoil / Weather"]
+        SAT["Satellite NDVI\nISRO / Sentinel-2"]
+        MANDI["Agmarknet\nMSP Price Feed"]
+        EMR["Hospital EMR\nABDM Compliant"]
     end
 
     VOICE --> APP
