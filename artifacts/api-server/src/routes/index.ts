@@ -7,6 +7,7 @@ import healthcareRouter from "./healthcare";
 import governanceRouter from "./governance";
 import indiastackRouter from "./indiastack";
 import architectureRouter from "./architecture";
+import openaiRouter from "./openai";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use("/healthcare", healthcareRouter);
 router.use("/governance", governanceRouter);
 router.use("/indiastack", indiastackRouter);
 router.use("/architecture", architectureRouter);
+router.use("/openai", openaiRouter);
 
 export default router;

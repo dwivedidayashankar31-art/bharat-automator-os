@@ -54,9 +54,9 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 React + Vite frontend for **Bharat-Automator OS** — The Unified Agentic Mesh command center.
 
-Pages: Command Center dashboard, Architecture (Mermaid.js diagram), Agriculture Agent, Finance & IT Agent, Healthcare Agent, Governance Agent, India Stack Layer.
+Pages: Command Center dashboard, AI Assistant (chat with BharatOS AI), Architecture (Mermaid.js diagram), Agriculture Agent, Finance & IT Agent, Healthcare Agent, Governance Agent, India Stack Layer.
 
-Frontend packages: framer-motion, mermaid, react-syntax-highlighter, date-fns.
+Frontend packages: framer-motion, mermaid, react-syntax-highlighter, date-fns, @workspace/integrations-openai-ai-react.
 
 Serves at preview path `/`.
 
@@ -69,7 +69,7 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - Entry: `src/index.ts` — reads `PORT`, starts Express
 - App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
 - Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
+- Depends on: `@workspace/db`, `@workspace/api-zod`, `@workspace/integrations-openai-ai-server`
 - `pnpm --filter @workspace/api-server run dev` — run the dev server
 - `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
 - Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest

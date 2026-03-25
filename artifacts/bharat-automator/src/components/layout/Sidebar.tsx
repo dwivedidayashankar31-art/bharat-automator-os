@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import {
   BrainCircuit, Network, Leaf, Briefcase, HeartPulse,
-  Building2, Fingerprint, Code2, AlertTriangle, Home, ChevronRight, Sun, Moon
+  Building2, Fingerprint, Code2, AlertTriangle, Home, ChevronRight, Sun, Moon, MessageSquare
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -12,6 +12,7 @@ interface SidebarProps {
 
 const navItems = [
   { href: "/app", label: "Command Center", icon: BrainCircuit, exact: true },
+  { href: "/app/ai-assistant", label: "AI Assistant", icon: MessageSquare },
   { href: "/app/architecture", label: "Architecture", icon: Network },
   { type: "separator", label: "Sector Agents" },
   { href: "/app/agriculture", label: "Agriculture Agent", icon: Leaf },

@@ -76,6 +76,7 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "@workspace/integrations-openai-ai-react": "workspace:*",
     "mermaid": "^11.13.0",
     "react-syntax-highlighter": "^16.1.1"
   }

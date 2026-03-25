@@ -16,6 +16,7 @@ import Governance from "./pages/Governance";
 import IndiaStack from "./pages/IndiaStack";
 import Boilerplate from "./pages/Boilerplate";
 import Bottlenecks from "./pages/Bottlenecks";
+import AIAssistant from "./pages/AIAssistant";
 import NotFound from "./pages/not-found";
 
 const queryClient = new QueryClient({
@@ -32,6 +33,7 @@ function AppRoutes() {
     <AppLayout>
       <Switch>
         <Route path="/app" component={Dashboard} />
+        <Route path="/app/ai-assistant" component={AIAssistant} />
         <Route path="/app/architecture" component={Architecture} />
         <Route path="/app/agriculture" component={Agriculture} />
         <Route path="/app/finance" component={Finance} />
