@@ -23,7 +23,12 @@ export default function Finance() {
   const [gstResult, setGstResult] = useState<any>(null);
   const [bidResult, setBidResult] = useState<any>(null);
   const [itrResult, setItrResult] = useState<any>(null);
-  const [itrBankLinked, setItrBankLinked] = useState(true);
+
+  // Controlled state for Radix UI components (Select, Switch don't work with FormData)
+  const [gstPeriod, setGstPeriod] = useState("Oct-2024");
+  const [gstBankLinked, setGstBankLinked] = useState(true);
+  const [itrForm16, setItrForm16] = useState(true);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["Contra", "Upwork"]);
 
   const handleGSTSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,14 +37,17 @@ export default function Finance() {
     gstMutation.mutate({
       data: {
         gstin: formData.get("gstin") as string,
-        period: formData.get("period") as string,
+        period: gstPeriod,
         invoiceData: [{ sample: "auto_fetched_from_tally" }],
-        bankAccountLinked: formData.get("bankLinked") === "on"
+        bankAccountLinked: gstBankLinked
       }
     }, {
       onSuccess: (res) => {
         setGstResult(res);
         toast({ title: "Filing Successful", description: `GST filed with reference ${res.referenceNumber}` });
+      },
+      onError: () => {
+        toast({ title: "Filing Failed", description: "Could not submit GST return. Please try again.", variant: "destructive" });
       }
     });
   };
@@ -49,21 +57,22 @@ export default function Finance() {
     const formData = new FormData(e.currentTarget);
     const skillsStr = formData.get("skills") as string;
     const skillsArray = skillsStr ? skillsStr.split(",").map(s => s.trim()) : ["React", "Python"];
-    
-    // Get checked platforms
-    const platforms = ["Contra", "Truelancer", "Upwork", "Fiverr"].filter(p => formData.get(`platform_${p}`) === "on") as any[];
+    const minBudgetVal = parseFloat(formData.get("minBudget") as string);
     
     bidMutation.mutate({
       data: {
         studentId: "DEV-IND-404",
         skills: skillsArray,
-        platforms: platforms.length > 0 ? platforms : ["Upwork"],
-        minBudget: parseFloat(formData.get("minBudget") as string)
+        platforms: (selectedPlatforms.length > 0 ? selectedPlatforms : ["Upwork"]) as any[],
+        minBudget: isNaN(minBudgetVal) ? 500 : minBudgetVal
       }
     }, {
       onSuccess: (res) => {
         setBidResult(res);
         toast({ title: "Bids Placed", description: `Autonomously placed ${res.bidsPlaced} bids on jobs.` });
+      },
+      onError: () => {
+        toast({ title: "Bid Failed", description: "Could not place bids. Please try again.", variant: "destructive" });
       }
     });
   };
@@ -77,14 +86,23 @@ export default function Finance() {
         panNumber: formData.get("panNumber") as string,
         assessmentYear: formData.get("ay") as string,
         incomeDetails: { estimated: 850000 },
-        form16Available: formData.get("form16") === "on"
+        form16Available: itrForm16
       }
     }, {
       onSuccess: (res) => {
         setItrResult(res);
         toast({ title: "ITR Filed", description: `Income Tax Return filed successfully.` });
+      },
+      onError: () => {
+        toast({ title: "ITR Filing Failed", description: "Could not file ITR. Please check details and try again.", variant: "destructive" });
       }
     });
+  };
+
+  const togglePlatform = (platform: string) => {
+    setSelectedPlatforms(prev =>
+      prev.includes(platform) ? prev.filter(p => p !== platform) : [...prev, platform]
+    );
   };
 
   return (
@@ -119,7 +137,7 @@ export default function Finance() {
                     </div>
                     <div className="space-y-2">
                       <Label>Return Period</Label>
-                      <Select name="period" defaultValue="Oct-2024">
+                      <Select value={gstPeriod} onValueChange={setGstPeriod}>
                         <SelectTrigger className="bg-black/20">
                           <SelectValue />
                         </SelectTrigger>
@@ -137,7 +155,7 @@ export default function Finance() {
                       <Label className="text-base">Linked Bank Account</Label>
                       <p className="text-xs text-muted-foreground">Required for immediate refunds via UPI/IMPS</p>
                     </div>
-                    <Switch name="bankLinked" defaultChecked />
+                    <Switch checked={gstBankLinked} onCheckedChange={setGstBankLinked} />
                   </div>
 
                   <div className="space-y-3">
@@ -214,7 +232,7 @@ export default function Finance() {
                       
                       <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
                         <Label>Form 16 Auto-Fetch (via PAN)</Label>
-                        <Switch name="form16" defaultChecked />
+                        <Switch checked={itrForm16} onCheckedChange={setItrForm16} />
                       </div>
 
                       <Button type="submit" variant="secondary" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold" disabled={itrMutation.isPending}>
@@ -249,8 +267,16 @@ export default function Finance() {
                     <Label>Target Platforms</Label>
                     <div className="grid grid-cols-2 gap-3">
                       {["Contra", "Upwork", "Fiverr", "Truelancer"].map(p => (
-                        <div key={p} className="flex items-center space-x-2 bg-white/5 p-3 rounded-lg border border-white/10">
-                          <Checkbox id={`platform_${p}`} name={`platform_${p}`} defaultChecked />
+                        <div
+                          key={p}
+                          onClick={() => togglePlatform(p)}
+                          className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer transition-colors ${selectedPlatforms.includes(p) ? "bg-primary/10 border-primary/40" : "bg-white/5 border-white/10"}`}
+                        >
+                          <Checkbox
+                            id={`platform_${p}`}
+                            checked={selectedPlatforms.includes(p)}
+                            onCheckedChange={() => togglePlatform(p)}
+                          />
                           <label htmlFor={`platform_${p}`} className="text-sm font-medium leading-none cursor-pointer">{p}</label>
                         </div>
                       ))}
