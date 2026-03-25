@@ -1,10 +1,12 @@
 import { Link, useLocation } from "wouter";
 import {
   BrainCircuit, Network, Leaf, Briefcase, HeartPulse,
-  Building2, Fingerprint, Code2, AlertTriangle, Home, ChevronRight, Sun, Moon, MessageSquare
+  Building2, Fingerprint, Code2, AlertTriangle, Home, ChevronRight, Sun, Moon, MessageSquare,
+  LogIn, LogOut, User
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useAuth } from "@workspace/replit-auth-web";
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -29,6 +31,7 @@ const navItems = [
 export function Sidebar({ onNavigate }: SidebarProps) {
   const [location] = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { user, isAuthenticated, login, logout } = useAuth();
 
   return (
     <div className="h-full flex flex-col overflow-y-auto">
@@ -122,6 +125,43 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             Memory: Qdrant v1.9 • Latency: 24ms
           </p>
         </div>
+
+        {/* User profile / auth */}
+        {isAuthenticated && user ? (
+          <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-white/5 border border-white/10">
+            {user.profileImageUrl ? (
+              <img
+                src={user.profileImageUrl}
+                alt={user.firstName ?? "User"}
+                className="w-7 h-7 rounded-full object-cover shrink-0 border border-white/20"
+              />
+            ) : (
+              <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
+                <User size={14} className="text-primary" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-white truncate">
+                {user.firstName ?? user.email ?? "User"}
+              </p>
+              <p className="text-[10px] text-muted-foreground truncate">Authenticated</p>
+            </div>
+            <button
+              onClick={logout}
+              title="Log out"
+              className="p-1 text-muted-foreground hover:text-red-400 transition-colors"
+            >
+              <LogOut size={13} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={login}
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg border border-primary/30 text-primary hover:bg-primary/10 transition-all text-xs font-medium"
+          >
+            <LogIn size={14} /> Log In
+          </button>
+        )}
 
         {/* Back to home */}
         <Link

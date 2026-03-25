@@ -8,10 +8,12 @@ import governanceRouter from "./governance";
 import indiastackRouter from "./indiastack";
 import architectureRouter from "./architecture";
 import openaiRouter from "./openai";
+import authRouter from "./auth";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(authRouter);
 router.use("/orchestrator", orchestratorRouter);
 router.use("/agriculture", agricultureRouter);
 router.use("/finance", financeRouter);
