@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuthenticateAadhaar, useInitiateUpiPayment, useFetchDigilockerDocs } from "@workspace/api-client-react";
-import { Fingerprint, Banknote, FolderLock, ShieldCheck, Loader2, ArrowRight, Terminal, RefreshCcw, CheckCircle2 } from "lucide-react";
+import { Fingerprint, Banknote, FolderLock, ShieldCheck, Loader2, ArrowRight, Terminal, RefreshCcw, CheckCircle2, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
