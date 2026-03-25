@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { usePredictYield, useExecuteTrade, useGetMarketIntelligence } from "@workspace/api-client-react";
-import { Leaf, Droplets, ThermometerSun, Map, Coins, ArrowRight, Loader2, CheckCircle2, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Leaf, Droplets, ThermometerSun, Map, Coins, ArrowRight, Loader2, CheckCircle2, TrendingUp, TrendingDown, Minus, BarChart2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, RadialBarChart, RadialBar } from "recharts";
 
 export default function Agriculture() {
   const { toast } = useToast();
@@ -18,6 +19,7 @@ export default function Agriculture() {
   const { data: marketData, isLoading: marketLoading } = useGetMarketIntelligence();
   
   const [predictionData, setPredictionData] = useState<any>(null);
+  const [sensors, setSensors] = useState({ soilMoisture: 58, temperature: 28, ndviIndex: 0.72 });
 
   const handlePredict = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,10 +30,10 @@ export default function Agriculture() {
         farmerId: formData.get("farmerId") as string,
         cropType: formData.get("cropType") as string,
         fieldArea: parseFloat(formData.get("fieldArea") as string),
-        soilMoisture: parseFloat(formData.get("soilMoisture") as string),
-        temperature: parseFloat(formData.get("temperature") as string),
+        soilMoisture: sensors.soilMoisture,
+        temperature: sensors.temperature,
         rainfall: parseFloat(formData.get("rainfall") as string),
-        ndviIndex: parseFloat(formData.get("ndviIndex") as string),
+        ndviIndex: sensors.ndviIndex,
       }
     }, {
       onSuccess: (res) => {
@@ -115,27 +117,42 @@ export default function Agriculture() {
 
               <div className="space-y-4 pt-2">
                 <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <Label className="flex items-center gap-1"><Droplets size={14}/> Soil Moisture %</Label>
-                    <span className="text-xs text-muted-foreground">58%</span>
+                  <div className="flex justify-between items-center">
+                    <Label className="flex items-center gap-1"><Droplets size={14}/> Soil Moisture</Label>
+                    <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">{sensors.soilMoisture}%</span>
                   </div>
-                  <input type="range" name="soilMoisture" min="0" max="100" defaultValue="58" className="w-full accent-emerald-500" />
+                  <input type="range" name="soilMoisture" min="0" max="100" value={sensors.soilMoisture}
+                    onChange={e => setSensors(s => ({ ...s, soilMoisture: +e.target.value }))}
+                    className="w-full accent-emerald-500 h-2 cursor-pointer" />
+                  <div className="flex justify-between text-[10px] text-muted-foreground/50">
+                    <span>Dry</span><span>Optimal</span><span>Wet</span>
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <Label className="flex items-center gap-1"><ThermometerSun size={14}/> Temp (°C)</Label>
-                    <span className="text-xs text-muted-foreground">28°C</span>
+                  <div className="flex justify-between items-center">
+                    <Label className="flex items-center gap-1"><ThermometerSun size={14}/> Temperature</Label>
+                    <span className="text-xs font-mono font-bold text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded">{sensors.temperature}°C</span>
                   </div>
-                  <input type="range" name="temperature" min="0" max="50" defaultValue="28" className="w-full accent-emerald-500" />
+                  <input type="range" name="temperature" min="0" max="50" value={sensors.temperature}
+                    onChange={e => setSensors(s => ({ ...s, temperature: +e.target.value }))}
+                    className="w-full accent-orange-500 h-2 cursor-pointer" />
+                  <div className="flex justify-between text-[10px] text-muted-foreground/50">
+                    <span>Cold</span><span>Ideal</span><span>Hot</span>
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <Label>NDVI Index (0-1)</Label>
-                    <span className="text-xs text-muted-foreground">0.72</span>
+                  <div className="flex justify-between items-center">
+                    <Label>NDVI Index</Label>
+                    <span className="text-xs font-mono font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">{sensors.ndviIndex.toFixed(2)}</span>
                   </div>
-                  <input type="range" name="ndviIndex" min="0" max="1" step="0.01" defaultValue="0.72" className="w-full accent-emerald-500" />
+                  <input type="range" name="ndviIndex" min="0" max="1" step="0.01" value={sensors.ndviIndex}
+                    onChange={e => setSensors(s => ({ ...s, ndviIndex: +e.target.value }))}
+                    className="w-full accent-blue-500 h-2 cursor-pointer" />
+                  <div className="flex justify-between text-[10px] text-muted-foreground/50">
+                    <span>Bare</span><span>Sparse</span><span>Dense</span>
+                  </div>
                 </div>
               </div>
 
@@ -250,6 +267,38 @@ export default function Agriculture() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Price Comparison Chart */}
+          {marketData && (
+            <Card className="glass-panel border-border/50">
+              <CardHeader className="bg-white/5">
+                <CardTitle className="text-lg font-display uppercase tracking-widest flex items-center gap-2">
+                  <BarChart2 size={18} className="text-primary" /> Price vs Forecast Analysis
+                </CardTitle>
+                <CardDescription>Current mandi price vs 7-day AI forecast (₹/quintal)</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4 pb-2">
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={marketData.crops.map(c => ({
+                    name: c.crop,
+                    "Current Price": c.currentPrice,
+                    "7-Day Forecast": c.predictedPriceNext7Days,
+                  }))} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="name" tick={{ fill: "#9ca3af", fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
+                    <Tooltip
+                      contentStyle={{ background: "#0a0e1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#fff", fontSize: 12 }}
+                      formatter={(val: number) => [`₹${val}`, ""]}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+                    <Bar dataKey="Current Price" fill="#FF6B1A" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="7-Day Forecast" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Market Intelligence Table */}
           <Card className="glass-panel border-border/50">

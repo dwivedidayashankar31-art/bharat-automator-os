@@ -1,9 +1,15 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Terminal, Fingerprint, ShieldCheck, HeartPulse, Building2, CheckCircle2, Leaf, Briefcase } from "lucide-react";
+import { ArrowRight, Terminal, Fingerprint, ShieldCheck, HeartPulse, Building2, CheckCircle2, Leaf, Briefcase, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+
+const scrollTo = (id: string) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+};
 
 export default function Landing() {
+  const [mobileNav, setMobileNav] = useState(false);
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -23,24 +29,66 @@ export default function Landing() {
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
 
       {/* Navbar */}
-      <nav className="relative z-50 flex items-center justify-between px-6 py-6 max-w-7xl mx-auto">
+      <nav className="relative z-50 flex items-center justify-between px-6 py-5 max-w-7xl mx-auto border-b border-white/5 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="Logo" className="w-10 h-10 rounded-xl" />
           <span className="font-display font-bold text-2xl tracking-widest text-white">
             BHARAT<span className="text-primary">OS</span>
           </span>
         </div>
-        <div className="flex gap-4">
-          <Link href="/app">
-            <Button variant="ghost" className="text-white hover:bg-white/10 hidden sm:inline-flex">Sign In</Button>
+
+        {/* Desktop nav links */}
+        <div className="hidden md:flex items-center gap-1">
+          {[
+            { label: "Features", id: "features" },
+            { label: "India Stack", id: "indiastack" },
+            { label: "Pricing", id: "pricing" },
+            { label: "Reviews", id: "testimonials" },
+          ].map(link => (
+            <button
+              key={link.id}
+              onClick={() => scrollTo(link.id)}
+              className="px-4 py-2 text-sm text-muted-foreground hover:text-white transition-colors rounded-lg hover:bg-white/5"
+            >
+              {link.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex gap-3 items-center">
+          <Link href="/login">
+            <Button variant="ghost" className="text-white hover:bg-white/10 hidden sm:inline-flex border border-white/10">Sign In</Button>
           </Link>
           <Link href="/app">
             <Button className="bg-primary hover:bg-primary/90 text-white font-bold tracking-wide shadow-[0_0_20px_rgba(255,107,26,0.3)]">
               Launch Console <ArrowRight size={16} className="ml-2" />
             </Button>
           </Link>
+          <button className="md:hidden p-2 text-white" onClick={() => setMobileNav(!mobileNav)}>
+            {mobileNav ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Nav Dropdown */}
+      {mobileNav && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative z-40 bg-black/90 backdrop-blur-xl border-b border-white/10 px-6 py-4 flex flex-col gap-2 md:hidden">
+          {[
+            { label: "Features", id: "features" },
+            { label: "India Stack", id: "indiastack" },
+            { label: "Pricing", id: "pricing" },
+            { label: "Reviews", id: "testimonials" },
+          ].map(link => (
+            <button key={link.id} onClick={() => { scrollTo(link.id); setMobileNav(false); }}
+              className="text-left text-base text-white/80 hover:text-white py-2 border-b border-white/5 last:border-0">
+              {link.label}
+            </button>
+          ))}
+          <Link href="/login" onClick={() => setMobileNav(false)}>
+            <button className="text-left text-base text-primary font-semibold py-2">Sign In with Aadhaar</button>
+          </Link>
+        </motion.div>
+      )}
 
       {/* Hero Section */}
       <section className="relative z-10 pt-20 pb-32 px-6 max-w-5xl mx-auto text-center">
@@ -89,7 +137,7 @@ export default function Landing() {
       </section>
 
       {/* Feature Sections */}
-      <section className="py-24 relative z-10">
+      <section id="features" className="py-24 relative z-10">
         <div className="max-w-6xl mx-auto px-6 space-y-32">
           {/* Agriculture */}
           <div className="flex flex-col md:flex-row items-center gap-12">
@@ -191,7 +239,7 @@ export default function Landing() {
       </section>
 
       {/* India Stack Section */}
-      <section className="py-24 bg-black/40 border-y border-white/5 relative z-10">
+      <section id="indiastack" className="py-24 bg-black/40 border-y border-white/5 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-display font-bold text-white mb-4">Deep India Stack Integration</h2>
@@ -221,7 +269,7 @@ export default function Landing() {
       </section>
 
       {/* Pricing */}
-      <section className="py-24 relative z-10">
+      <section id="pricing" className="py-24 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-display font-bold text-white mb-4">Enterprise-Grade. Citizen-First.</h2>
@@ -272,7 +320,7 @@ export default function Landing() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-24 bg-black/30 border-t border-white/5 relative z-10">
+      <section id="testimonials" className="py-24 bg-black/30 border-t border-white/5 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-3xl font-display font-bold text-center text-white mb-16">Stories from Bharat</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

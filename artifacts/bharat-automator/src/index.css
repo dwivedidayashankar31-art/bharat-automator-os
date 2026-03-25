@@ -68,6 +68,53 @@
   --radius: 0.75rem;
 }
 
+/* Light Mode Theme */
+html.light {
+  --background: 30 20% 96%;
+  --foreground: 225 44% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 225 44% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 225 44% 10%;
+  --primary: 21 100% 50%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 217 91% 55%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 30 10% 90%;
+  --muted-foreground: 215 16% 40%;
+  --accent: 217 91% 55%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 30 10% 84%;
+  --input: 30 10% 88%;
+  --ring: 21 100% 50%;
+}
+
+html.light body {
+  background-color: hsl(30 20% 96%);
+}
+
+html.light .glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 24px -4px rgba(0,0,0,0.1);
+}
+
+html.light .bg-mesh {
+  background-color: hsl(30 20% 96%);
+  background-image: radial-gradient(rgba(255, 107, 26, 0.06) 1px, transparent 1px),
+    radial-gradient(rgba(255, 107, 26, 0.06) 1px, transparent 1px);
+}
+
+html.light .sidebar-logo-text {
+  color: hsl(225 44% 10%);
+}
+
+html.light ::-webkit-scrollbar-track {
+  background: hsl(30 20% 92%);
+}
+
 @layer base {
   * {
     @apply border-border;

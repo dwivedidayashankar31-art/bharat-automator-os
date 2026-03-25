@@ -1,9 +1,10 @@
 import { Link, useLocation } from "wouter";
 import {
   BrainCircuit, Network, Leaf, Briefcase, HeartPulse,
-  Building2, Fingerprint, Code2, AlertTriangle, Home, ChevronRight
+  Building2, Fingerprint, Code2, AlertTriangle, Home, ChevronRight, Sun, Moon
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -26,6 +27,7 @@ const navItems = [
 
 export function Sidebar({ onNavigate }: SidebarProps) {
   const [location] = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="h-full flex flex-col overflow-y-auto">
@@ -37,7 +39,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           className="w-9 h-9 rounded-xl shadow-lg shadow-primary/20 border border-primary/20"
         />
         <div className="flex flex-col">
-          <span className="font-display font-bold text-xl tracking-widest text-white leading-none">
+          <span className="font-display font-bold text-xl tracking-widest leading-none sidebar-logo-text">
             BHARAT<span className="text-primary">OS</span>
           </span>
           <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold">
@@ -93,6 +95,21 @@ export function Sidebar({ onNavigate }: SidebarProps) {
 
       {/* Bottom */}
       <div className="p-3 border-t border-border/50 space-y-2 shrink-0">
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/50 text-muted-foreground hover:text-white hover:border-primary/30 hover:bg-primary/5 transition-all text-xs font-medium"
+        >
+          {theme === "dark" ? (
+            <><Sun size={14} className="text-yellow-400" /> Light Mode</>
+          ) : (
+            <><Moon size={14} className="text-blue-400" /> Dark Mode</>
+          )}
+          <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-white/10 uppercase tracking-widest font-bold">
+            {theme === "dark" ? "ON" : "OFF"}
+          </span>
+        </button>
+
         {/* System status */}
         <div className="bg-black/30 rounded-lg p-3 border border-border/30">
           <div className="flex items-center gap-2 mb-1.5">
