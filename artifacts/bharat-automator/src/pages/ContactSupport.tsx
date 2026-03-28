@@ -14,7 +14,7 @@ import {
 
 const teamMembers = [
   {
-    name: "Dayashankar Dwivedi",
+    name: "Er. Dayashankar Dwivedi",
     role: "Founder & Lead Developer",
     avatar: "DD",
     color: "from-orange-500 to-amber-500",
@@ -33,42 +33,42 @@ const supportChannels = [
   {
     icon: Mail,
     title: "Email Support",
-    value: "support@bharatos.dev",
+    value: "dwivedidayashankar31@gmail.com",
     description: "Get response within 24 hours",
     color: "text-blue-400",
     bgColor: "from-blue-500/10 to-blue-600/5",
     borderColor: "border-blue-500/20",
-    action: "mailto:support@bharatos.dev",
+    action: "mailto:dwivedidayashankar31@gmail.com",
   },
   {
     icon: Phone,
     title: "Phone Support",
-    value: "+91 XXXXX XXXXX",
+    value: "+91 74896 55562",
     description: "Mon-Sat, 9 AM - 6 PM IST",
     color: "text-emerald-400",
     bgColor: "from-emerald-500/10 to-emerald-600/5",
     borderColor: "border-emerald-500/20",
-    action: "tel:+91XXXXXXXXXX",
+    action: "tel:+917489655562",
   },
   {
     icon: MessageCircle,
     title: "WhatsApp",
-    value: "+91 XXXXX XXXXX",
+    value: "+91 74896 55562",
     description: "Quick chat support",
     color: "text-green-400",
     bgColor: "from-green-500/10 to-green-600/5",
     borderColor: "border-green-500/20",
-    action: "https://wa.me/91XXXXXXXXXX",
+    action: "https://wa.me/917489655562",
   },
   {
     icon: Linkedin,
     title: "LinkedIn",
-    value: "Connect on LinkedIn",
+    value: "Dayashankar Dwivedi",
     description: "Professional network & updates",
     color: "text-sky-400",
     bgColor: "from-sky-500/10 to-sky-600/5",
     borderColor: "border-sky-500/20",
-    action: "https://linkedin.com/in/",
+    action: "https://www.linkedin.com/in/dayashankar-dwivedi",
   },
   {
     icon: Github,
@@ -270,7 +270,7 @@ export default function ContactSupport() {
                 <p className="text-white font-semibold text-sm">Office Location</p>
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                India<br />
+                Panna, Madhya Pradesh, India<br />
                 <span className="text-[10px] text-emerald-400">Available for remote collaboration worldwide</span>
               </p>
               <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/5">
