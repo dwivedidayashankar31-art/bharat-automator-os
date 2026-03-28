@@ -54,7 +54,7 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 React + Vite frontend for **Bharat-Automator OS** — The Unified Agentic Mesh command center.
 
-Pages: Command Center dashboard, AI Assistant (chat with BharatOS AI), Architecture (Mermaid.js diagram), Agriculture Agent, Finance & IT Agent, Healthcare Agent, Governance Agent, India Stack Layer.
+Pages: Command Center dashboard, AI Assistant (chat with BharatOS AI), Architecture (Mermaid.js diagram), Agriculture Agent, Finance & IT Agent, Healthcare Agent, Governance Agent, India Stack Layer, Payments (Razorpay integration).
 
 Frontend packages: framer-motion, mermaid, react-syntax-highlighter, date-fns, @workspace/integrations-openai-ai-react, @workspace/replit-auth-web.
 
@@ -72,6 +72,7 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
 - Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
 - Auth: Replit OIDC via `openid-client` v6. Routes: `GET /api/auth/user`, `GET /api/login`, `GET /api/callback`, `GET /api/logout`, `POST /api/mobile-auth/token-exchange`, `POST /api/mobile-auth/logout`. Sessions stored in `sessionsTable`. Users stored in `usersTable`. `authMiddleware` patches `req.user` and `req.isAuthenticated()` on every request.
+- Payments: Razorpay integration via `razorpay` SDK. Routes: `POST /api/payments/create-order`, `POST /api/payments/verify`, `GET /api/payments/config`. Secrets required: `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`.
 - Depends on: `@workspace/db`, `@workspace/api-zod`, `@workspace/integrations-openai-ai-server`
 - `pnpm --filter @workspace/api-server run dev` — run the dev server
 - `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)

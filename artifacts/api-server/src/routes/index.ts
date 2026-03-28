@@ -10,6 +10,7 @@ import architectureRouter from "./architecture";
 import openaiRouter from "./openai";
 import authRouter from "./auth";
 import agentsRouter from "./agents";
+import paymentsRouter from "./payments";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use("/governance", governanceRouter);
 router.use("/indiastack", indiastackRouter);
 router.use("/architecture", architectureRouter);
 router.use("/openai", openaiRouter);
+router.use("/payments", paymentsRouter);
 
 export default router;

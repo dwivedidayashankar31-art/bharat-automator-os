@@ -3,7 +3,7 @@ import {
   BrainCircuit, Network, Leaf, Briefcase, HeartPulse,
   Building2, Fingerprint, Code2, AlertTriangle, ChevronRight, Sun, Moon, MessageSquare,
   LogIn, LogOut, User, Bot, BarChart3, KeyRound, Home, TrendingUp,
-  Rocket, X, Clock
+  Rocket, X, Clock, CreditCard
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -37,6 +37,7 @@ const navItems: NavItem[] = [
   { href: "/app/task-automator", label: "Task Automator", icon: Bot },
   { href: "/app/data-science", label: "Data Science", icon: BarChart3 },
   { href: "/app/profit-engine", label: "Profit Engine", icon: TrendingUp },
+  { href: "/app/payments", label: "Payments", icon: CreditCard },
   { href: "/app/architecture", label: "Architecture", icon: Network },
   { type: "separator", label: "Sector Agents" },
   { href: "/app/agriculture", label: "Agriculture Agent", icon: Leaf },

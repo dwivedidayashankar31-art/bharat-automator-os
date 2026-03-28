@@ -21,6 +21,7 @@ import TaskAutomator from "./pages/TaskAutomator";
 import DataScience from "./pages/DataScience";
 import ApiKeys from "./pages/ApiKeys";
 import ProfitEngine from "./pages/ProfitEngine";
+import Payments from "./pages/Payments";
 import NotFound from "./pages/not-found";
 
 const queryClient = new QueryClient({
@@ -42,6 +43,7 @@ function AppRoutes() {
         <Route path="/app/data-science" component={DataScience} />
         <Route path="/app/api-keys" component={ApiKeys} />
         <Route path="/app/profit-engine" component={ProfitEngine} />
+        <Route path="/app/payments" component={Payments} />
         <Route path="/app/architecture" component={Architecture} />
         <Route path="/app/agriculture" component={Agriculture} />
         <Route path="/app/finance" component={Finance} />
