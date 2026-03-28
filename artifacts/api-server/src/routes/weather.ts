@@ -49,6 +49,133 @@ function getWindDescription(speed: number): { description: string; severity: str
   return { description: "Cyclone/Hurricane", severity: "danger" };
 }
 
+router.get("/search", async (req, res) => {
+  try {
+    const query = (req.query.q as string || "").trim();
+    if (!query || query.length < 2) {
+      return res.status(400).json({ error: "Search query must be at least 2 characters." });
+    }
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=10&language=en&format=json`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Geocoding API error: ${response.status}`);
+    const data = await response.json();
+    const results = (data.results || []).map((r: any) => ({
+      id: r.id,
+      name: r.name,
+      admin1: r.admin1 || "",
+      admin2: r.admin2 || "",
+      country: r.country || "",
+      countryCode: r.country_code || "",
+      lat: r.latitude,
+      lng: r.longitude,
+      elevation: r.elevation || 0,
+      population: r.population || 0,
+      timezone: r.timezone || "",
+      label: [r.name, r.admin1, r.country].filter(Boolean).join(", "),
+    }));
+    res.json({ results, query });
+  } catch {
+    res.status(500).json({ error: "Failed to search locations." });
+  }
+});
+
+router.get("/location", async (req, res) => {
+  try {
+    const lat = parseFloat(req.query.lat as string);
+    const lng = parseFloat(req.query.lng as string);
+    const name = (req.query.name as string) || "Custom Location";
+    const region = (req.query.region as string) || "";
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({ error: "Valid lat and lng required." });
+    }
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure,cloud_cover,is_day&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,uv_index_max,wind_speed_10m_max,weather_code&hourly=temperature_2m,precipitation,wind_speed_10m,weather_code,relative_humidity_2m&timezone=auto&forecast_days=7`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Open-Meteo API error: ${response.status}`);
+    const d = await response.json();
+    const current = d.current;
+    const daily = d.daily;
+    const hourly = d.hourly;
+    const weatherInfo = getWeatherCondition(current.weather_code);
+    const windInfo = getWindDescription(current.wind_speed_10m);
+
+    const alerts: string[] = [];
+    if (current.temperature_2m > 45) alerts.push("🔴 Extreme Heat Alert");
+    else if (current.temperature_2m > 40) alerts.push("🟠 Heat Wave Warning");
+    else if (current.temperature_2m < 0) alerts.push("🔵 Freezing Temperature");
+    else if (current.temperature_2m < 5) alerts.push("🟡 Cold Wave Warning");
+    if (current.wind_speed_10m > 80) alerts.push("🔴 Cyclone/Hurricane Warning");
+    else if (current.wind_speed_10m > 60) alerts.push("🔴 Storm Warning");
+    else if (current.wind_speed_10m > 40) alerts.push("🟠 Strong Wind Advisory");
+    if (current.wind_gusts_10m > 100) alerts.push("🔴 Severe Gust Alert");
+    if (current.precipitation > 50) alerts.push("🔴 Extreme Rainfall");
+    else if (current.precipitation > 30) alerts.push("🔴 Heavy Rain Alert");
+    else if (current.precipitation > 10) alerts.push("🟠 Moderate Rain");
+    if (current.relative_humidity_2m > 95) alerts.push("🟡 Very High Humidity");
+
+    const now = new Date();
+    const currentHourIdx = hourly.time.findIndex((t: string) => new Date(t) >= now);
+    const startIdx = Math.max(0, currentHourIdx - 1);
+    const next24 = hourly.time.slice(startIdx, startIdx + 24).map((t: string, idx: number) => ({
+      time: new Date(t).toLocaleTimeString("en-IN", { hour: "2-digit", hour12: true }),
+      fullTime: t,
+      temperature: hourly.temperature_2m[startIdx + idx],
+      precipitation: hourly.precipitation[startIdx + idx],
+      windSpeed: hourly.wind_speed_10m[startIdx + idx],
+      humidity: hourly.relative_humidity_2m[startIdx + idx],
+      weatherCode: hourly.weather_code[startIdx + idx],
+      condition: getWeatherCondition(hourly.weather_code[startIdx + idx]).conditionIcon,
+    }));
+
+    res.json({
+      location: {
+        name,
+        region,
+        lat,
+        lng,
+        timezone: d.timezone,
+        elevation: d.elevation,
+      },
+      current: {
+        temperature: current.temperature_2m,
+        feelsLike: current.apparent_temperature,
+        humidity: current.relative_humidity_2m,
+        precipitation: current.precipitation,
+        rain: current.rain,
+        windSpeed: current.wind_speed_10m,
+        windGusts: current.wind_gusts_10m,
+        windDirection: current.wind_direction_10m,
+        pressure: current.surface_pressure,
+        cloudCover: current.cloud_cover,
+        isDay: current.is_day === 1,
+        weatherCode: current.weather_code,
+        condition: weatherInfo.condition,
+        conditionSeverity: weatherInfo.severity,
+        conditionIcon: weatherInfo.icon,
+        windDescription: windInfo.description,
+        windSeverity: windInfo.severity,
+      },
+      forecast: daily.time.map((date: string, idx: number) => ({
+        date,
+        maxTemp: daily.temperature_2m_max[idx],
+        minTemp: daily.temperature_2m_min[idx],
+        precipitation: daily.precipitation_sum[idx],
+        rain: daily.rain_sum[idx],
+        uvIndex: daily.uv_index_max[idx],
+        maxWind: daily.wind_speed_10m_max[idx],
+        weatherCode: daily.weather_code[idx],
+        condition: getWeatherCondition(daily.weather_code[idx]).condition,
+        conditionIcon: getWeatherCondition(daily.weather_code[idx]).icon,
+      })),
+      hourly: next24,
+      alerts,
+      fetchedAt: new Date().toISOString(),
+      source: "Open-Meteo (Real-Time)",
+    });
+  } catch {
+    res.status(500).json({ error: "Failed to fetch location weather." });
+  }
+});
+
 router.get("/current", async (_req, res) => {
   try {
     const latitudes = INDIAN_CITIES.map(c => c.lat).join(",");

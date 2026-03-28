@@ -1,16 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/hooks/use-toast";
 import {
   Cloud, Droplets, Wind, Thermometer, Sun, CloudRain, CloudLightning,
-  AlertTriangle, RefreshCw, Clock, MapPin, Eye, ArrowUp, Gauge, Activity
+  AlertTriangle, RefreshCw, Clock, MapPin, Eye, ArrowUp, Gauge, Activity,
+  Search, Globe, Navigation, X, Loader2
 } from "lucide-react";
 import {
-  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, RadialBarChart, RadialBar, Legend
+  AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer
 } from "recharts";
 
 interface CityWeather {
@@ -37,19 +39,32 @@ interface CityWeather {
     windDescription: string;
     windSeverity: string;
   };
-  forecast: {
-    date: string;
-    maxTemp: number;
-    minTemp: number;
-    precipitation: number;
-    rain: number;
-    uvIndex: number;
-    maxWind: number;
-    weatherCode: number;
-    condition: string;
-    conditionIcon: string;
-  }[];
+  forecast: ForecastDay[];
   alerts: string[];
+}
+
+interface ForecastDay {
+  date: string;
+  maxTemp: number;
+  minTemp: number;
+  precipitation: number;
+  rain: number;
+  uvIndex: number;
+  maxWind: number;
+  weatherCode: number;
+  condition: string;
+  conditionIcon: string;
+}
+
+interface HourlyData {
+  time: string;
+  fullTime: string;
+  temperature: number;
+  precipitation: number;
+  windSpeed: number;
+  humidity: number;
+  weatherCode: number;
+  condition: string;
 }
 
 interface Earthquake {
@@ -75,6 +90,31 @@ interface NationalData {
   alerts: string[];
 }
 
+interface SearchResult {
+  id: number;
+  name: string;
+  admin1: string;
+  admin2: string;
+  country: string;
+  countryCode: string;
+  lat: number;
+  lng: number;
+  elevation: number;
+  population: number;
+  timezone: string;
+  label: string;
+}
+
+interface LocationWeather {
+  location: { name: string; region: string; lat: number; lng: number; timezone: string; elevation: number };
+  current: CityWeather["current"];
+  forecast: ForecastDay[];
+  hourly: HourlyData[];
+  alerts: string[];
+}
+
+type TabId = "overview" | "cities" | "forecast" | "earthquakes" | "search";
+
 export default function WeatherAnalytics() {
   const { toast } = useToast();
   const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -85,8 +125,18 @@ export default function WeatherAnalytics() {
   const [eqSummary, setEqSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
-  const [activeTab, setActiveTab] = useState<"overview" | "cities" | "forecast" | "earthquakes">("overview");
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [selectedCity, setSelectedCity] = useState<string>("Delhi");
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [locationWeather, setLocationWeather] = useState<LocationWeather | null>(null);
+  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<{ name: string; region: string; lat: number; lng: number }[]>([]);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -108,11 +158,103 @@ export default function WeatherAnalytics() {
   }, [BASE, toast]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
-
   useEffect(() => {
     const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);
   }, [fetchData]);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const handleSearch = useCallback(async (q: string) => {
+    if (q.length < 2) { setSearchResults([]); setShowDropdown(false); return; }
+    setSearching(true);
+    try {
+      const res = await fetch(`${BASE}/api/weather/search?q=${encodeURIComponent(q)}`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setSearchResults(data.results || []);
+      setShowDropdown(true);
+    } catch {
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, [BASE]);
+
+  const onSearchInput = (val: string) => {
+    setSearchQuery(val);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => handleSearch(val), 300);
+  };
+
+  const selectLocation = async (loc: SearchResult) => {
+    setShowDropdown(false);
+    setSearchQuery(loc.label);
+    setLoadingLocation(true);
+    try {
+      const region = [loc.admin1, loc.country].filter(Boolean).join(", ");
+      const res = await fetch(`${BASE}/api/weather/location?lat=${loc.lat}&lng=${loc.lng}&name=${encodeURIComponent(loc.name)}&region=${encodeURIComponent(region)}`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setLocationWeather(data);
+      const entry = { name: loc.name, region, lat: loc.lat, lng: loc.lng };
+      setSearchHistory(prev => {
+        const filtered = prev.filter(p => !(p.lat === loc.lat && p.lng === loc.lng));
+        return [entry, ...filtered].slice(0, 8);
+      });
+    } catch {
+      toast({ title: "Error", description: "Failed to fetch weather for this location", variant: "destructive" });
+    } finally {
+      setLoadingLocation(false);
+    }
+  };
+
+  const loadFromHistory = async (h: { name: string; region: string; lat: number; lng: number }) => {
+    setSearchQuery(`${h.name}, ${h.region}`);
+    setLoadingLocation(true);
+    try {
+      const res = await fetch(`${BASE}/api/weather/location?lat=${h.lat}&lng=${h.lng}&name=${encodeURIComponent(h.name)}&region=${encodeURIComponent(h.region)}`);
+      if (!res.ok) throw new Error();
+      setLocationWeather(await res.json());
+    } catch {
+      toast({ title: "Error", description: "Failed to fetch weather", variant: "destructive" });
+    } finally {
+      setLoadingLocation(false);
+    }
+  };
+
+  const useMyLocation = () => {
+    if (!navigator.geolocation) {
+      toast({ title: "Error", description: "Geolocation not supported", variant: "destructive" });
+      return;
+    }
+    setLoadingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude: lat, longitude: lng } = pos.coords;
+          const res = await fetch(`${BASE}/api/weather/location?lat=${lat}&lng=${lng}&name=${encodeURIComponent("My Location")}&region=${encodeURIComponent("GPS Location")}`);
+          if (!res.ok) throw new Error();
+          const data = await res.json();
+          setLocationWeather(data);
+          setSearchQuery(`My Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+        } catch {
+          toast({ title: "Error", description: "Failed to fetch weather", variant: "destructive" });
+        } finally {
+          setLoadingLocation(false);
+        }
+      },
+      () => { setLoadingLocation(false); toast({ title: "Error", description: "Location access denied", variant: "destructive" }); }
+    );
+  };
 
   const selected = cities.find(c => c.city === selectedCity);
   const severityColor = (s: string) =>
@@ -125,8 +267,11 @@ export default function WeatherAnalytics() {
     s === "catastrophic" ? "bg-red-600" : s === "severe" ? "bg-red-500" :
     s === "major" ? "bg-orange-500" : s === "moderate" ? "bg-yellow-500" : "bg-emerald-500";
 
+  const tooltipStyle = { backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" };
+
   const tabs = [
     { id: "overview" as const, label: "National Overview", icon: Eye },
+    { id: "search" as const, label: "Search Any Location", icon: Search },
     { id: "cities" as const, label: "City Weather", icon: MapPin },
     { id: "forecast" as const, label: "7-Day Forecast", icon: Cloud },
     { id: "earthquakes" as const, label: "Earthquakes", icon: Activity },
@@ -134,9 +279,14 @@ export default function WeatherAnalytics() {
 
   const allAlerts = cities.flatMap(c => c.alerts.map(a => `${c.city}: ${a}`));
 
+  const windDirLabel = (deg: number) => {
+    const dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+    return dirs[Math.round(deg / 45) % 8];
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <PageHeader icon={Cloud} title="Weather & Disaster Analytics" description="Real-time weather monitoring, forecasts, and seismic activity for Indian subcontinent." />
+      <PageHeader icon={Cloud} title="Weather & Disaster Analytics" description="Real-time weather for any location worldwide — village, city, state, or country. Powered by Open-Meteo & USGS." />
 
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex gap-2 flex-wrap">
@@ -172,6 +322,253 @@ export default function WeatherAnalytics() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {activeTab === "search" && (
+        <div className="space-y-6">
+          <Card className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-indigo-500/20">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Globe className="text-indigo-400" size={24} />
+                <div>
+                  <p className="text-white font-bold text-lg">Search Any Location Worldwide</p>
+                  <p className="text-sm text-muted-foreground">Village, City, State, Country — type name and get real-time weather</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <div className="flex-1 relative" ref={searchRef}>
+                  <div className="relative">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      value={searchQuery}
+                      onChange={e => onSearchInput(e.target.value)}
+                      onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
+                      placeholder="Type any location... (e.g. Varanasi, London, Shimla, Tokyo)"
+                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-gray-500 h-12 text-base"
+                    />
+                    {searching && <Loader2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground animate-spin" />}
+                    {searchQuery && !searching && (
+                      <button onClick={() => { setSearchQuery(""); setSearchResults([]); setShowDropdown(false); }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white">
+                        <X size={16} />
+                      </button>
+                    )}
+                  </div>
+
+                  {showDropdown && searchResults.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-white/10 rounded-lg shadow-2xl z-50 max-h-[350px] overflow-y-auto">
+                      {searchResults.map(r => (
+                        <button key={r.id} onClick={() => selectLocation(r)}
+                          className="w-full text-left px-4 py-3 hover:bg-white/10 border-b border-white/5 transition-colors flex items-center gap-3">
+                          <MapPin size={14} className="text-indigo-400 shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-white text-sm font-medium truncate">{r.name}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">
+                              {[r.admin2, r.admin1, r.country].filter(Boolean).join(", ")}
+                              {r.population > 0 && ` | Pop: ${r.population.toLocaleString()}`}
+                            </p>
+                          </div>
+                          <span className="text-[9px] text-gray-500 shrink-0 font-mono">{r.lat.toFixed(2)}, {r.lng.toFixed(2)}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <Button onClick={useMyLocation} disabled={loadingLocation} className="bg-indigo-600 hover:bg-indigo-700 text-white h-12 px-4 shrink-0">
+                  <Navigation size={16} className="mr-2" />
+                  My Location
+                </Button>
+              </div>
+
+              {searchHistory.length > 0 && (
+                <div className="mt-3 flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Recent:</span>
+                  {searchHistory.map((h, i) => (
+                    <Button key={i} variant="outline" size="sm" onClick={() => loadFromHistory(h)}
+                      className="border-white/10 text-white/80 hover:bg-white/10 text-[11px] h-7 px-2">
+                      <MapPin size={10} className="mr-1" /> {h.name}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {loadingLocation && (
+            <div className="flex items-center justify-center py-16 gap-3">
+              <Loader2 size={24} className="animate-spin text-indigo-400" />
+              <span className="text-muted-foreground">Loading weather data...</span>
+            </div>
+          )}
+
+          {!loadingLocation && locationWeather && (
+            <div className="space-y-6">
+              <Card className="bg-gradient-to-br from-blue-500/5 to-cyan-500/5 border-white/10">
+                <CardHeader>
+                  <div className="flex items-center justify-between flex-wrap gap-3">
+                    <div>
+                      <CardTitle className="text-2xl text-white flex items-center gap-3">
+                        <span className="text-4xl">{locationWeather.current.conditionIcon}</span>
+                        {locationWeather.location.name}
+                      </CardTitle>
+                      <CardDescription className="ml-14">
+                        {locationWeather.location.region} | {locationWeather.current.condition} | {locationWeather.current.isDay ? "Daytime" : "Night"}
+                        <span className="ml-2 text-[10px]">({locationWeather.location.lat.toFixed(4)}°N, {locationWeather.location.lng.toFixed(4)}°E)</span>
+                      </CardDescription>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-5xl font-bold text-white">{locationWeather.current.temperature}°C</p>
+                      <p className="text-sm text-muted-foreground">Feels like {locationWeather.current.feelsLike}°C</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Droplets size={14} className="text-blue-400" />
+                        <span className="text-[10px] text-muted-foreground uppercase">Humidity</span>
+                      </div>
+                      <p className="text-xl font-bold text-white">{locationWeather.current.humidity}%</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Wind size={14} className="text-cyan-400" />
+                        <span className="text-[10px] text-muted-foreground uppercase">Wind</span>
+                      </div>
+                      <p className="text-xl font-bold text-white">{locationWeather.current.windSpeed} km/h</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        Gusts: {locationWeather.current.windGusts} | {windDirLabel(locationWeather.current.windDirection)}
+                      </p>
+                      <Badge variant="outline" className={`text-[9px] mt-1 ${severityColor(locationWeather.current.windSeverity)}`}>
+                        {locationWeather.current.windDescription}
+                      </Badge>
+                    </div>
+                    <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                      <div className="flex items-center gap-2 mb-1">
+                        <CloudRain size={14} className="text-blue-400" />
+                        <span className="text-[10px] text-muted-foreground uppercase">Rain</span>
+                      </div>
+                      <p className="text-xl font-bold text-white">{locationWeather.current.rain} mm</p>
+                      <p className="text-[10px] text-muted-foreground">Precip: {locationWeather.current.precipitation} mm</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Gauge size={14} className="text-purple-400" />
+                        <span className="text-[10px] text-muted-foreground uppercase">Pressure</span>
+                      </div>
+                      <p className="text-xl font-bold text-white">{locationWeather.current.pressure} hPa</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Cloud size={14} className="text-gray-400" />
+                        <span className="text-[10px] text-muted-foreground uppercase">Clouds</span>
+                      </div>
+                      <p className="text-xl font-bold text-white">{locationWeather.current.cloudCover}%</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                      <div className="flex items-center gap-2 mb-1">
+                        <ArrowUp size={14} className="text-green-400" />
+                        <span className="text-[10px] text-muted-foreground uppercase">Elevation</span>
+                      </div>
+                      <p className="text-xl font-bold text-white">{locationWeather.location.elevation}m</p>
+                    </div>
+                  </div>
+
+                  {locationWeather.alerts.length > 0 && (
+                    <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30">
+                      <p className="text-red-400 font-bold text-sm mb-2 flex items-center gap-2"><AlertTriangle size={14} /> Weather Alerts</p>
+                      {locationWeather.alerts.map((a, i) => (
+                        <p key={i} className="text-sm text-red-300">{a}</p>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-card/50 backdrop-blur border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-white">24-Hour Temperature</CardTitle>
+                    <CardDescription>Hourly temperature forecast</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart data={locationWeather.hourly}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                        <XAxis dataKey="time" tick={{ fill: "#94a3b8", fontSize: 9 }} interval={2} />
+                        <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                        <Line type="monotone" dataKey="temperature" stroke="#f97316" strokeWidth={2} dot={false} name="Temp °C" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card/50 backdrop-blur border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-white">24-Hour Wind & Rain</CardTitle>
+                    <CardDescription>Hourly wind speed and precipitation</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <BarChart data={locationWeather.hourly}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                        <XAxis dataKey="time" tick={{ fill: "#94a3b8", fontSize: 9 }} interval={2} />
+                        <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                        <Bar dataKey="windSpeed" fill="#06b6d4" name="Wind km/h" radius={[2, 2, 0, 0]} />
+                        <Bar dataKey="precipitation" fill="#3b82f6" name="Rain mm" radius={[2, 2, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card className="bg-card/50 backdrop-blur border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-lg text-white">7-Day Forecast — {locationWeather.location.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
+                    {locationWeather.forecast.map((f, i) => (
+                      <div key={i} className={`p-3 rounded-lg text-center bg-white/5 border border-white/10 ${i === 0 ? "ring-1 ring-primary/50" : ""}`}>
+                        <p className="text-[10px] text-muted-foreground mb-1">{new Date(f.date).toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short" })}</p>
+                        <p className="text-2xl mb-1">{f.conditionIcon}</p>
+                        <div className="flex justify-center gap-2 mb-1">
+                          <span className="text-orange-400 font-bold">{f.maxTemp}°</span>
+                          <span className="text-blue-400">{f.minTemp}°</span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">{f.condition.replace(/[^\w\s]/g, "").trim()}</p>
+                        <div className="mt-2 space-y-0.5 text-[9px]">
+                          <p className="text-blue-300">Rain: {f.rain} mm</p>
+                          <p className="text-cyan-300">Wind: {f.maxWind} km/h</p>
+                          <p className="text-yellow-300">UV: {f.uvIndex}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {!loadingLocation && !locationWeather && (
+            <div className="text-center py-16 space-y-4">
+              <Globe size={60} className="mx-auto text-indigo-400/30" />
+              <p className="text-muted-foreground">Search any location to see real-time weather data</p>
+              <div className="flex flex-wrap justify-center gap-2 max-w-xl mx-auto">
+                {["Varanasi", "Shimla", "Manali", "Goa", "Darjeeling", "Jaisalmer", "London", "New York", "Tokyo", "Dubai", "Paris", "Singapore"].map(q => (
+                  <Button key={q} variant="outline" size="sm" onClick={() => { setSearchQuery(q); handleSearch(q); }}
+                    className="border-white/10 text-white/70 hover:bg-white/10 text-xs">
+                    {q}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {activeTab === "overview" && (
@@ -219,7 +616,7 @@ export default function WeatherAnalytics() {
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                     <XAxis dataKey="city" tick={{ fill: "#94a3b8", fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
                     <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} />
-                    <Tooltip contentStyle={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }} />
+                    <Tooltip contentStyle={tooltipStyle} />
                     <Bar dataKey="temp" fill="#f97316" name="Temperature °C" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="feels" fill="#fb923c" name="Feels Like °C" radius={[4, 4, 0, 0]} opacity={0.5} />
                   </BarChart>
@@ -234,11 +631,11 @@ export default function WeatherAnalytics() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={cities.map(c => ({ city: c.city, wind: c.current.windSpeed, rain: c.current.precipitation, humidity: c.current.humidity }))}>
+                  <BarChart data={cities.map(c => ({ city: c.city, wind: c.current.windSpeed, rain: c.current.precipitation }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                     <XAxis dataKey="city" tick={{ fill: "#94a3b8", fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
                     <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} />
-                    <Tooltip contentStyle={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }} />
+                    <Tooltip contentStyle={tooltipStyle} />
                     <Bar dataKey="wind" fill="#06b6d4" name="Wind km/h" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="rain" fill="#3b82f6" name="Rain mm" radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -263,11 +660,11 @@ export default function WeatherAnalytics() {
                     <p className="text-2xl font-bold text-white">{c.current.temperature}°C</p>
                     <p className="text-[10px] text-muted-foreground">{c.current.condition.replace(/[^\w\s]/g, "").trim()}</p>
                     <div className="flex gap-2 mt-1 text-[10px]">
-                      <span className="text-cyan-400">💨 {c.current.windSpeed}</span>
-                      <span className="text-blue-400">💧 {c.current.humidity}%</span>
+                      <span className="text-cyan-400">Wind: {c.current.windSpeed}</span>
+                      <span className="text-blue-400">Hum: {c.current.humidity}%</span>
                     </div>
                     {c.alerts.length > 0 && (
-                      <Badge variant="outline" className="mt-1 text-[8px] bg-red-500/10 text-red-400 border-red-500/30">⚠ {c.alerts.length} alert(s)</Badge>
+                      <Badge variant="outline" className="mt-1 text-[8px] bg-red-500/10 text-red-400 border-red-500/30">{c.alerts.length} alert(s)</Badge>
                     )}
                   </div>
                 ))}
@@ -376,12 +773,12 @@ export default function WeatherAnalytics() {
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={selected.forecast.map(f => ({
                   date: new Date(f.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
-                  max: f.maxTemp, min: f.minTemp, rain: f.precipitation
+                  max: f.maxTemp, min: f.minTemp
                 }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                   <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 11 }} />
                   <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} />
-                  <Tooltip contentStyle={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }} />
+                  <Tooltip contentStyle={tooltipStyle} />
                   <Area type="monotone" dataKey="max" stroke="#f97316" fill="#f97316" fillOpacity={0.15} name="Max °C" />
                   <Area type="monotone" dataKey="min" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} name="Min °C" />
                 </AreaChart>
@@ -401,9 +798,9 @@ export default function WeatherAnalytics() {
                   </div>
                   <p className="text-[10px] text-muted-foreground">{f.condition.replace(/[^\w\s]/g, "").trim()}</p>
                   <div className="mt-2 space-y-0.5 text-[9px]">
-                    <p className="text-blue-300">💧 {f.rain} mm</p>
-                    <p className="text-cyan-300">💨 {f.maxWind} km/h</p>
-                    <p className="text-yellow-300">☀ UV {f.uvIndex}</p>
+                    <p className="text-blue-300">Rain: {f.rain} mm</p>
+                    <p className="text-cyan-300">Wind: {f.maxWind} km/h</p>
+                    <p className="text-yellow-300">UV: {f.uvIndex}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -463,13 +860,13 @@ export default function WeatherAnalytics() {
                           <Badge variant="outline" className={`text-[9px] ${severityColor(eq.severity === "moderate" || eq.severity === "major" ? "warning" : eq.severity === "severe" || eq.severity === "catastrophic" ? "danger" : "normal")}`}>
                             {eq.severity}
                           </Badge>
-                          {eq.tsunami && <Badge variant="outline" className="text-[9px] bg-red-500/10 text-red-400 border-red-500/30">🌊 Tsunami</Badge>}
+                          {eq.tsunami && <Badge variant="outline" className="text-[9px] bg-red-500/10 text-red-400 border-red-500/30">Tsunami</Badge>}
                           {eq.felt > 0 && <span className="text-[10px] text-purple-400">Felt by {eq.felt} people</span>}
                         </div>
                       </div>
                       <div className="text-right shrink-0">
                         <p className="text-[10px] text-muted-foreground">{new Date(eq.time).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
-                        <a href={eq.url} target="_blank" rel="noreferrer" className="text-[9px] text-blue-400 hover:underline">Details →</a>
+                        <a href={eq.url} target="_blank" rel="noreferrer" className="text-[9px] text-blue-400 hover:underline">Details</a>
                       </div>
                     </div>
                   ))}
