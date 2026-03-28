@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 import {
   Cloud, Droplets, Wind, Thermometer, Sun, CloudRain, CloudLightning,
   AlertTriangle, RefreshCw, Clock, MapPin, Eye, ArrowUp, Gauge, Activity,
-  Search, Globe, Navigation, X, Loader2
+  Search, Globe, Navigation, X, Loader2, Satellite, Radio
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -286,23 +287,31 @@ export default function WeatherAnalytics() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <PageHeader icon={Cloud} title="Weather & Disaster Analytics" description="Real-time weather for any location worldwide — village, city, state, or country. Powered by Open-Meteo & USGS." />
+      <PageHeader icon={Cloud} title="Weather & Disaster Analytics" description="Real-time weather intelligence for any location worldwide — village, city, state, or country. Enterprise-grade monitoring powered by Open-Meteo & USGS." />
 
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-1.5 flex-wrap bg-white/[0.03] rounded-xl p-1.5 border border-white/[0.06]">
           {tabs.map(t => (
-            <Button key={t.id} variant={activeTab === t.id ? "default" : "outline"} size="sm"
-              onClick={() => setActiveTab(t.id)} className={activeTab === t.id ? "bg-primary text-white" : "border-white/20 text-white hover:bg-white/10"}>
+            <Button key={t.id} variant={activeTab === t.id ? "default" : "ghost"} size="sm"
+              onClick={() => setActiveTab(t.id)}
+              className={activeTab === t.id
+                ? "bg-gradient-to-r from-primary to-orange-600 text-white shadow-lg shadow-primary/20 h-9"
+                : "text-white/60 hover:text-white hover:bg-white/10 h-9"}>
               <t.icon size={14} className="mr-1.5" /> {t.label}
             </Button>
           ))}
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]">LIVE DATA</Badge>
-          <span className="text-[10px] text-muted-foreground font-mono flex items-center gap-1">
-            <Clock size={10} /> {lastRefresh.toLocaleTimeString()} (auto: 60s)
-          </span>
-          <Button variant="outline" size="sm" onClick={fetchData} disabled={loading} className="border-white/20 text-white hover:bg-white/10">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Live</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10">
+            <Satellite size={10} className="text-blue-400" />
+            <span className="text-[10px] text-muted-foreground font-mono">{lastRefresh.toLocaleTimeString()}</span>
+          </div>
+          <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}
+            className="border-white/15 text-white hover:bg-white/10 rounded-full w-9 h-9 p-0">
             <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
           </Button>
         </div>
@@ -574,34 +583,26 @@ export default function WeatherAnalytics() {
       {activeTab === "overview" && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-gradient-to-br from-orange-500/10 to-orange-600/5 border-orange-500/20">
-              <CardContent className="p-5">
-                <p className="text-[10px] text-orange-300/70 uppercase tracking-widest font-bold">Avg Temperature</p>
-                <p className="text-3xl font-bold text-white mt-1">{national?.avgTemperature || 0}°C</p>
-                <Thermometer className="text-orange-400 mt-1" size={20} />
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20">
-              <CardContent className="p-5">
-                <p className="text-[10px] text-blue-300/70 uppercase tracking-widest font-bold">Total Rainfall</p>
-                <p className="text-3xl font-bold text-white mt-1">{national?.totalPrecipitation || 0} mm</p>
-                <Droplets className="text-blue-400 mt-1" size={20} />
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-cyan-500/10 to-cyan-600/5 border-cyan-500/20">
-              <CardContent className="p-5">
-                <p className="text-[10px] text-cyan-300/70 uppercase tracking-widest font-bold">Max Wind</p>
-                <p className="text-3xl font-bold text-white mt-1">{national?.maxWindSpeed || 0} km/h</p>
-                <Wind className="text-cyan-400 mt-1" size={20} />
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-red-500/10 to-red-600/5 border-red-500/20">
-              <CardContent className="p-5">
-                <p className="text-[10px] text-red-300/70 uppercase tracking-widest font-bold">Earthquakes</p>
-                <p className="text-3xl font-bold text-white mt-1">{eqSummary?.total || 0}</p>
-                <p className="text-[10px] text-yellow-400 mt-0.5">{eqSummary?.significant || 0} significant (4.0+)</p>
-              </CardContent>
-            </Card>
+            {[
+              { label: "Avg Temperature", value: `${national?.avgTemperature || 0}°C`, icon: Thermometer, color: "orange", sub: "12 Cities Monitored", gradient: "from-orange-500/15 to-amber-500/5", border: "border-orange-500/20", textColor: "text-orange-300/70", iconColor: "text-orange-400" },
+              { label: "Total Rainfall", value: `${national?.totalPrecipitation || 0} mm`, icon: Droplets, color: "blue", sub: "Real-Time Precipitation", gradient: "from-blue-500/15 to-indigo-500/5", border: "border-blue-500/20", textColor: "text-blue-300/70", iconColor: "text-blue-400" },
+              { label: "Max Wind Speed", value: `${national?.maxWindSpeed || 0} km/h`, icon: Wind, color: "cyan", sub: "Storm Detection Active", gradient: "from-cyan-500/15 to-teal-500/5", border: "border-cyan-500/20", textColor: "text-cyan-300/70", iconColor: "text-cyan-400" },
+              { label: "Seismic Events", value: `${eqSummary?.total || 0}`, icon: Activity, color: "red", sub: `${eqSummary?.significant || 0} significant (M4.0+)`, gradient: "from-red-500/15 to-rose-500/5", border: "border-red-500/20", textColor: "text-red-300/70", iconColor: "text-red-400" },
+            ].map((stat, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+                <Card className={`bg-gradient-to-br ${stat.gradient} ${stat.border} border overflow-hidden relative group hover:shadow-lg transition-all`}>
+                  <div className="absolute -right-4 -top-4 w-20 h-20 bg-white/[0.03] rounded-full blur-xl group-hover:bg-white/[0.05] transition-colors" />
+                  <CardContent className="p-5 relative z-10">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className={`text-[10px] ${stat.textColor} uppercase tracking-[0.15em] font-bold`}>{stat.label}</p>
+                      <stat.icon size={18} className={`${stat.iconColor} opacity-60`} />
+                    </div>
+                    <p className="text-3xl font-bold text-white tracking-tight">{stat.value}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">{stat.sub}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -644,29 +645,37 @@ export default function WeatherAnalytics() {
             </Card>
           </div>
 
-          <Card className="bg-card/50 backdrop-blur border-white/10">
-            <CardHeader>
-              <CardTitle className="text-lg text-white">All Cities — Live Status</CardTitle>
+          <Card className="bg-gradient-to-br from-white/[0.03] to-transparent border-white/[0.08] overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
+            <CardHeader className="relative z-10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Radio size={16} className="text-emerald-400" />
+                  <CardTitle className="text-lg text-white">Live Monitoring — All Cities</CardTitle>
+                </div>
+                <Badge variant="outline" className="bg-white/5 text-muted-foreground border-white/10 text-[9px]">{cities.length} Stations</Badge>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-10">
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {cities.map(c => (
-                  <div key={c.city} onClick={() => { setSelectedCity(c.city); setActiveTab("cities"); }}
-                    className="p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 cursor-pointer transition-all">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-white font-bold text-sm">{c.city}</span>
-                      <span className="text-lg">{c.current.conditionIcon}</span>
+                {cities.map((c, i) => (
+                  <motion.div key={c.city} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.04 }}
+                    onClick={() => { setSelectedCity(c.city); setActiveTab("cities"); }}
+                    className="p-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/15 cursor-pointer transition-all group hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white font-semibold text-sm tracking-tight">{c.city}</span>
+                      <span className="text-xl group-hover:scale-110 transition-transform">{c.current.conditionIcon}</span>
                     </div>
-                    <p className="text-2xl font-bold text-white">{c.current.temperature}°C</p>
-                    <p className="text-[10px] text-muted-foreground">{c.current.condition.replace(/[^\w\s]/g, "").trim()}</p>
-                    <div className="flex gap-2 mt-1 text-[10px]">
-                      <span className="text-cyan-400">Wind: {c.current.windSpeed}</span>
-                      <span className="text-blue-400">Hum: {c.current.humidity}%</span>
+                    <p className="text-2xl font-bold text-white tracking-tight">{c.current.temperature}°C</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{c.current.condition.replace(/[^\w\s]/g, "").trim()}</p>
+                    <div className="flex gap-3 mt-2 text-[10px]">
+                      <span className="text-cyan-400 flex items-center gap-0.5"><Wind size={9} /> {c.current.windSpeed}</span>
+                      <span className="text-blue-400 flex items-center gap-0.5"><Droplets size={9} /> {c.current.humidity}%</span>
                     </div>
                     {c.alerts.length > 0 && (
-                      <Badge variant="outline" className="mt-1 text-[8px] bg-red-500/10 text-red-400 border-red-500/30">{c.alerts.length} alert(s)</Badge>
+                      <Badge variant="outline" className="mt-2 text-[8px] bg-red-500/10 text-red-400 border-red-500/20">{c.alerts.length} alert(s)</Badge>
                     )}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </CardContent>

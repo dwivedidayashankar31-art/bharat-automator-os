@@ -3,7 +3,7 @@ import {
   BrainCircuit, Network, Leaf, Briefcase, HeartPulse,
   Building2, Fingerprint, Code2, AlertTriangle, ChevronRight, Sun, Moon, MessageSquare,
   LogIn, LogOut, User, Bot, BarChart3, KeyRound, Home, TrendingUp,
-  Rocket, X, Clock, CreditCard, FileText, Activity, Shield, CloudSun
+  Rocket, X, Clock, CreditCard, FileText, Activity, Shield, CloudSun, Headphones
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -55,6 +55,8 @@ const navItems: NavItem[] = [
   { type: "separator", label: "Technical Docs" },
   { href: "/app/boilerplate", label: "Python Boilerplate", icon: Code2 },
   { href: "/app/bottlenecks", label: "Critical Bottlenecks", icon: AlertTriangle },
+  { type: "separator", label: "Support" },
+  { href: "/app/contact", label: "Contact & Support", icon: Headphones },
   { type: "separator", label: "Coming Soon" },
   { label: "Agent Marketplace", icon: Rocket, comingSoon: true, badge: "Soon" },
 ];
