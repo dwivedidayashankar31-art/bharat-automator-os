@@ -24,6 +24,7 @@ import ProfitEngine from "./pages/ProfitEngine";
 import Payments from "./pages/Payments";
 import Analytics from "./pages/Analytics";
 import Invoices from "./pages/Invoices";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/not-found";
 
 const queryClient = new QueryClient({
@@ -48,6 +49,7 @@ function AppRoutes() {
         <Route path="/app/payments" component={Payments} />
         <Route path="/app/analytics" component={Analytics} />
         <Route path="/app/invoices" component={Invoices} />
+        <Route path="/app/admin" component={AdminPanel} />
         <Route path="/app/architecture" component={Architecture} />
         <Route path="/app/agriculture" component={Agriculture} />
         <Route path="/app/finance" component={Finance} />

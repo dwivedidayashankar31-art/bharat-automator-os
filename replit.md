@@ -54,7 +54,7 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 React + Vite frontend for **Bharat-Automator OS** — The Unified Agentic Mesh command center.
 
-Pages: Command Center dashboard, AI Assistant (chat with BharatOS AI), Architecture (Mermaid.js diagram), Agriculture Agent, Finance & IT Agent, Healthcare Agent, Governance Agent, India Stack Layer, Payments (Razorpay integration), Live Analytics (Recharts dashboards with auto-refresh), Invoice Generator (GST-compliant tax invoices with PDF download via jspdf).
+Pages: Command Center dashboard, AI Assistant (chat with BharatOS AI), Architecture (Mermaid.js diagram), Agriculture Agent, Finance & IT Agent, Healthcare Agent (with GPS geolocation), Governance Agent, India Stack Layer (Bhashini live translation with 7 languages), Payments (Razorpay integration with DB storage), Live Analytics (Recharts dashboards with real DB data + auto-refresh), Invoice Generator (GST-compliant tax invoices with PDF download via jspdf), Admin Panel (real-time user data, payment records, activity log with sector breakdown).
 
 Frontend packages: framer-motion, mermaid, react-syntax-highlighter, date-fns, @workspace/integrations-openai-ai-react, @workspace/replit-auth-web.
 
@@ -77,6 +77,8 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - Invoices: `POST /api/invoices/generate` — GST-compliant invoice generation with automatic CGST/SGST/IGST calculation and amount-in-words (Indian numbering system with Lakh/Crore).
 - Translation: `POST /api/indiastack/translate` — Dictionary-based multi-language translation (Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati, Kannada) with confidence score. Input validated and length-limited.
 - GSTR-2B Invoices: `GET /api/indiastack/gstr2b-invoices` — Dynamic invoice data for GST ITC reconciliation.
+- Activity Tracking: `POST /api/activity/track`, `GET /api/activity/feed`, `GET /api/activity/stats`, `GET /api/activity/users` — Real-time user activity tracking with sector breakdown, action counts, IP logging. Auto-middleware tracks all POST requests.
+- Payment History: `GET /api/payments/history` — All payment records with stats (total, verified, revenue). Payments stored in DB on create-order and updated on verify.
 - Depends on: `@workspace/db`, `@workspace/api-zod`, `@workspace/integrations-openai-ai-server`
 - `pnpm --filter @workspace/api-server run dev` — run the dev server
 - `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)

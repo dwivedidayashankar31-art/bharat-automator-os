@@ -1,12 +1,12 @@
 import { Router, type IRouter } from "express";
 import crypto from "node:crypto";
 import Razorpay from "razorpay";
+import { db } from "@workspace/db";
+import { paymentsTable, activitiesTable } from "@workspace/db/schema";
+import { eq, desc, sql } from "drizzle-orm";
 
 const router: IRouter = Router();
 
-// Scrub sensitive values from any error message before sending to the client.
-// This ensures that even if an internal error accidentally contains a key value,
-// it will never be visible in the API response.
 function sanitizeError(err: unknown): string {
   const raw = err instanceof Error ? err.message : "An unexpected error occurred";
   const keyId = process.env["RAZORPAY_KEY_ID"] ?? "";
@@ -15,8 +15,6 @@ function sanitizeError(err: unknown): string {
   let safe = raw;
   if (keyId && safe.includes(keyId)) safe = safe.replaceAll(keyId, "[REDACTED]");
   if (keySecret && safe.includes(keySecret)) safe = safe.replaceAll(keySecret, "[REDACTED]");
-
-  // Also strip any env-var-shaped tokens (rzp_live_*, rzp_test_*)
   safe = safe.replace(/rzp_(test|live)_[A-Za-z0-9]+/g, "[REDACTED]");
 
   return safe;
@@ -31,32 +29,53 @@ function getRazorpayClient(): Razorpay {
   return new Razorpay({ key_id: keyId, key_secret: keySecret });
 }
 
-// POST /api/payments/create-order
-// Creates a Razorpay order and returns the public key ID + order details.
-// The KEY SECRET is NEVER included in this response.
 router.post("/create-order", async (req, res) => {
   try {
-    const { amount, currency = "INR", receipt, notes } = req.body as {
+    const { amount, currency = "INR", receipt, notes, plan, email, userId } = req.body as {
       amount: number;
       currency?: string;
       receipt?: string;
       notes?: Record<string, string>;
+      plan?: string;
+      email?: string;
+      userId?: string;
     };
 
     if (!amount || typeof amount !== "number" || amount <= 0) {
-      res.status(400).json({ error: "Valid amount in paise is required." });
+      res.status(400).json({ error: "Valid amount is required." });
       return;
     }
 
     const razorpay = getRazorpayClient();
+    const receiptId = receipt ?? `rcpt_${Date.now()}`;
     const order = await razorpay.orders.create({
       amount: Math.round(amount),
       currency,
-      receipt: receipt ?? `rcpt_${Date.now()}`,
+      receipt: receiptId,
       notes: notes ?? {},
     });
 
-    // Only the PUBLIC key ID goes to the client — never the secret.
+    await db.insert(paymentsTable).values({
+      orderId: order.id,
+      userId: userId || null,
+      email: email || null,
+      amount: Math.round(amount),
+      currency,
+      status: "created",
+      plan: plan || null,
+      receipt: receiptId,
+      notes: notes || null,
+    });
+
+    await db.insert(activitiesTable).values({
+      userId: userId || null,
+      action: "payment_initiated",
+      sector: "Payments",
+      details: { orderId: order.id, amount, currency, plan },
+      ipAddress: (req.headers["x-forwarded-for"] as string)?.split(",")[0] || req.ip || null,
+      userAgent: req.headers["user-agent"] || null,
+    });
+
     res.json({
       orderId: order.id,
       amount: order.amount,
@@ -70,11 +89,7 @@ router.post("/create-order", async (req, res) => {
   }
 });
 
-// POST /api/payments/verify
-// Verifies the Razorpay payment signature using HMAC-SHA256.
-// Uses timing-safe comparison to prevent timing attacks.
-// The KEY SECRET is used only for hashing — never returned in any response.
-router.post("/verify", (req, res) => {
+router.post("/verify", async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body as {
       razorpay_order_id?: string;
@@ -94,14 +109,11 @@ router.post("/verify", (req, res) => {
     }
 
     const payload = `${razorpay_order_id}|${razorpay_payment_id}`;
-
     const expectedSignature = crypto
       .createHmac("sha256", keySecret)
       .update(payload)
       .digest("hex");
 
-    // Timing-safe comparison: prevents attackers from guessing the signature
-    // byte-by-byte by measuring response time differences.
     const expected = Buffer.from(expectedSignature, "hex");
     const received = Buffer.from(razorpay_signature, "hex");
 
@@ -110,9 +122,30 @@ router.post("/verify", (req, res) => {
       crypto.timingSafeEqual(expected, received);
 
     if (!isValid) {
+      await db.update(paymentsTable)
+        .set({ status: "failed" })
+        .where(eq(paymentsTable.orderId, razorpay_order_id));
+
       res.status(400).json({ success: false, error: "Payment signature is invalid." });
       return;
     }
+
+    await db.update(paymentsTable)
+      .set({
+        paymentId: razorpay_payment_id,
+        signature: razorpay_signature,
+        status: "verified",
+        verifiedAt: new Date(),
+      })
+      .where(eq(paymentsTable.orderId, razorpay_order_id));
+
+    await db.insert(activitiesTable).values({
+      action: "payment_verified",
+      sector: "Payments",
+      details: { orderId: razorpay_order_id, paymentId: razorpay_payment_id },
+      ipAddress: (req.headers["x-forwarded-for"] as string)?.split(",")[0] || req.ip || null,
+      userAgent: req.headers["user-agent"] || null,
+    });
 
     res.json({
       success: true,
@@ -125,8 +158,6 @@ router.post("/verify", (req, res) => {
   }
 });
 
-// GET /api/payments/config
-// Returns only the PUBLIC key ID — safe to expose to the browser.
 router.get("/config", (_req, res) => {
   const keyId = process.env["RAZORPAY_KEY_ID"];
   if (!keyId) {
@@ -134,6 +165,25 @@ router.get("/config", (_req, res) => {
     return;
   }
   res.json({ keyId });
+});
+
+router.get("/history", async (_req, res) => {
+  try {
+    const payments = await db.select().from(paymentsTable).orderBy(desc(paymentsTable.createdAt)).limit(100);
+    const stats = await db.select({
+      totalPayments: sql<number>`count(*)`,
+      totalRevenue: sql<number>`coalesce(sum(${paymentsTable.amount}), 0)`,
+      verifiedPayments: sql<number>`count(*) filter (where ${paymentsTable.status} = 'verified')`,
+      verifiedRevenue: sql<number>`coalesce(sum(${paymentsTable.amount}) filter (where ${paymentsTable.status} = 'verified'), 0)`,
+    }).from(paymentsTable);
+
+    res.json({
+      payments,
+      stats: stats[0] || { totalPayments: 0, totalRevenue: 0, verifiedPayments: 0, verifiedRevenue: 0 },
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch payment history." });
+  }
 });
 
 export default router;

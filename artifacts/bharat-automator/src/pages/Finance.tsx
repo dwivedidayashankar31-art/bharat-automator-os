@@ -309,9 +309,9 @@ export default function Finance() {
                           <Checkbox
                             id={`platform_${p}`}
                             checked={selectedPlatforms.includes(p)}
-                            onCheckedChange={() => togglePlatform(p)}
+                            onCheckedChange={(e) => { e; }}
                           />
-                          <label htmlFor={`platform_${p}`} className="text-sm font-medium leading-none cursor-pointer">{p}</label>
+                          <label className="text-sm font-medium leading-none cursor-pointer pointer-events-none">{p}</label>
                         </div>
                       ))}
                     </div>

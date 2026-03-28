@@ -3,7 +3,7 @@ import {
   BrainCircuit, Network, Leaf, Briefcase, HeartPulse,
   Building2, Fingerprint, Code2, AlertTriangle, ChevronRight, Sun, Moon, MessageSquare,
   LogIn, LogOut, User, Bot, BarChart3, KeyRound, Home, TrendingUp,
-  Rocket, X, Clock, CreditCard, FileText, Activity
+  Rocket, X, Clock, CreditCard, FileText, Activity, Shield
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -48,7 +48,8 @@ const navItems: NavItem[] = [
   { href: "/app/governance", label: "Governance Agent", icon: Building2 },
   { type: "separator", label: "India Stack" },
   { href: "/app/indiastack", label: "India Stack", icon: Fingerprint },
-  { type: "separator", label: "Settings" },
+  { type: "separator", label: "Admin" },
+  { href: "/app/admin", label: "Admin Panel", icon: Shield, badge: "Live" },
   { href: "/app/api-keys", label: "API Key Manager", icon: KeyRound },
   { type: "separator", label: "Technical Docs" },
   { href: "/app/boilerplate", label: "Python Boilerplate", icon: Code2 },
