@@ -11,6 +11,8 @@ import openaiRouter from "./openai";
 import authRouter from "./auth";
 import agentsRouter from "./agents";
 import paymentsRouter from "./payments";
+import analyticsRouter from "./analytics";
+import invoicesRouter from "./invoices";
 
 const router: IRouter = Router();
 
@@ -26,5 +28,7 @@ router.use("/indiastack", indiastackRouter);
 router.use("/architecture", architectureRouter);
 router.use("/openai", openaiRouter);
 router.use("/payments", paymentsRouter);
+router.use("/analytics", analyticsRouter);
+router.use("/invoices", invoicesRouter);
 
 export default router;
