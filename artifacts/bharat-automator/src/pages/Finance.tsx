@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFileGST, useBidFreelance, useFileIncomeTax } from "@workspace/api-client-react";
 import { Briefcase, FileText, Globe, Coins, ShieldCheck, Loader2, CheckCircle2, Building2, User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -29,6 +29,23 @@ export default function Finance() {
   const [gstBankLinked, setGstBankLinked] = useState(true);
   const [itrForm16, setItrForm16] = useState(true);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["Contra", "Upwork"]);
+
+  const [gstr2bInvoices, setGstr2bInvoices] = useState<{ invoiceNo: string; supplier: string; gstin: string; itcAmount: number; date: string }[]>([]);
+  const [gstr2bTotal, setGstr2bTotal] = useState(0);
+  const [gstr2bLoading, setGstr2bLoading] = useState(true);
+  const [gstr2bError, setGstr2bError] = useState(false);
+
+  useEffect(() => {
+    const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+    fetch(`${BASE}/api/indiastack/gstr2b-invoices`)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => {
+        setGstr2bInvoices(data.invoices);
+        setGstr2bTotal(data.totalITC);
+        setGstr2bLoading(false);
+      })
+      .catch(() => { setGstr2bLoading(false); setGstr2bError(true); });
+  }, []);
 
   const handleGSTSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -159,17 +176,34 @@ export default function Finance() {
                   </div>
 
                   <div className="space-y-3">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-widest">Invoices Auto-Fetched (GSTR-2B)</Label>
+                    <Label className="text-muted-foreground text-xs uppercase tracking-widest">Invoices Auto-Fetched (GSTR-2B) {!gstr2bLoading && <span className="text-emerald-400 ml-2">({gstr2bInvoices.length} found)</span>}</Label>
                     <div className="border border-white/10 rounded-lg overflow-hidden text-sm">
                       <table className="w-full">
                         <thead className="bg-white/5 text-xs text-muted-foreground text-left">
-                          <tr><th className="p-2 font-medium">Invoice #</th><th className="p-2 font-medium">Supplier</th><th className="p-2 font-medium text-right">ITC Amount</th></tr>
+                          <tr><th className="p-2 font-medium">Invoice #</th><th className="p-2 font-medium">Supplier</th><th className="p-2 font-medium">GSTIN</th><th className="p-2 font-medium text-right">ITC Amount</th></tr>
                         </thead>
                         <tbody className="divide-y divide-white/5 font-mono">
-                          <tr><td className="p-2">INV-992</td><td className="p-2">TechCorp India</td><td className="p-2 text-right">₹12,450</td></tr>
-                          <tr><td className="p-2">INV-993</td><td className="p-2">AWS Services</td><td className="p-2 text-right">₹4,200</td></tr>
-                          <tr><td className="p-2">INV-994</td><td className="p-2">OfficeSpace Co</td><td className="p-2 text-right">₹18,000</td></tr>
+                          {gstr2bLoading ? (
+                            <tr><td colSpan={4} className="p-3 text-center text-muted-foreground">Loading invoices...</td></tr>
+                          ) : gstr2bError ? (
+                            <tr><td colSpan={4} className="p-3 text-center text-red-400">Failed to fetch invoices from GSTN. Please retry.</td></tr>
+                          ) : gstr2bInvoices.map((inv, i) => (
+                            <tr key={i} className="hover:bg-white/5">
+                              <td className="p-2">{inv.invoiceNo}</td>
+                              <td className="p-2 font-sans">{inv.supplier}</td>
+                              <td className="p-2 text-[10px] text-muted-foreground">{inv.gstin}</td>
+                              <td className="p-2 text-right text-emerald-400">₹{inv.itcAmount.toLocaleString("en-IN")}</td>
+                            </tr>
+                          ))}
                         </tbody>
+                        {!gstr2bLoading && (
+                          <tfoot className="bg-white/5 border-t border-white/10">
+                            <tr>
+                              <td colSpan={3} className="p-2 font-sans font-bold text-xs text-muted-foreground">Total ITC Claimable</td>
+                              <td className="p-2 text-right font-bold text-emerald-400">₹{gstr2bTotal.toLocaleString("en-IN")}</td>
+                            </tr>
+                          </tfoot>
+                        )}
                       </table>
                     </div>
                   </div>

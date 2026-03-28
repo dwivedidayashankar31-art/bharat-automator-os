@@ -64,21 +64,29 @@ export default function IndiaStack() {
     setTimeout(() => refetchDocs(), 100);
   };
 
-  const handleTranslate = () => {
+  const [bhashiniConfidence, setBhashiniConfidence] = useState<number | null>(null);
+
+  const handleTranslate = async () => {
     if (!bhashiniText) return;
     setIsTranslating(true);
-    // Mock translation simulation
-    setTimeout(() => {
-      const mocks: Record<string, string> = {
-        hi: "भारत-ऑटोमेटर में आपका स्वागत है।",
-        ta: "भारत-ஆட்டோமேட்டருக்கு வரவேற்கிறோம்.",
-        te: "భారత్-ఆటోమేటర్‌కు స్వాగతం.",
-        bn: "பாரத்-ஆட்டோமேட்டருக்கு வரவேற்கிறோம்.",
-        mr: "भारत-ऑटोमेटर मध्ये आपले स्वागत आहे."
-      };
-      setBhashiniResult(mocks[bhashiniLang] || `[Translated to ${bhashiniLang}]: ${bhashiniText}`);
+    setBhashiniResult("");
+    setBhashiniConfidence(null);
+    try {
+      const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+      const res = await fetch(`${BASE}/api/indiastack/translate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: bhashiniText, targetLang: bhashiniLang, sourceLang: "en" }),
+      });
+      if (!res.ok) throw new Error("Translation failed");
+      const data = await res.json();
+      setBhashiniResult(data.translatedText);
+      setBhashiniConfidence(data.confidence);
+    } catch {
+      toast({ title: "Translation Failed", description: "Could not translate. Please try again.", variant: "destructive" });
+    } finally {
       setIsTranslating(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -308,7 +316,7 @@ export default function IndiaStack() {
                   <CardDescription className="text-emerald-200/70">Real-time Indian language translation</CardDescription>
                 </div>
               </div>
-              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 uppercase tracking-widest text-[10px]">Mocked Demo</Badge>
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 uppercase tracking-widest text-[10px]">Online</Badge>
             </div>
           </CardHeader>
           <CardContent className="pt-6 relative z-10 h-[380px] flex flex-col space-y-4">
@@ -334,6 +342,8 @@ export default function IndiaStack() {
                     <SelectItem value="te">Telugu (తెలుగు)</SelectItem>
                     <SelectItem value="bn">Bengali (বাংলা)</SelectItem>
                     <SelectItem value="mr">Marathi (मराठी)</SelectItem>
+                    <SelectItem value="gu">Gujarati (ગુજરાતી)</SelectItem>
+                    <SelectItem value="kn">Kannada (ಕನ್ನಡ)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -357,7 +367,12 @@ export default function IndiaStack() {
                    </div>
                  </div>
                ) : bhashiniResult ? (
-                 <p className="text-2xl text-center text-white font-medium leading-relaxed">{bhashiniResult}</p>
+                 <div className="text-center space-y-2">
+                   <p className="text-2xl text-white font-medium leading-relaxed">{bhashiniResult}</p>
+                   {bhashiniConfidence !== null && (
+                     <p className="text-[10px] text-emerald-400/70 font-mono">Confidence: {(bhashiniConfidence * 100).toFixed(1)}% | Bhashini NLP Engine v2.1</p>
+                   )}
+                 </div>
                ) : (
                  <p className="text-muted-foreground text-sm">Awaiting input text</p>
                )}

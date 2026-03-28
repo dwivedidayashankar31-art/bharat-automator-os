@@ -23,6 +23,27 @@ export default function Healthcare() {
 
   const emergencyMutation = useBookEmergencyService();
   const [emergencyResult, setEmergencyResult] = useState<any>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationStatus, setLocationStatus] = useState<string>("not_requested");
+
+  const requestLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationStatus("unsupported");
+      return;
+    }
+    setLocationStatus("requesting");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLocationStatus("granted");
+      },
+      () => {
+        setUserLocation({ lat: 28.6139, lng: 77.2090 });
+        setLocationStatus("denied");
+      },
+      { enableHighAccuracy: true, timeout: 5000 }
+    );
+  };
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,10 +56,11 @@ export default function Healthcare() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
+    const loc = userLocation || { lat: 28.6139, lng: 77.2090 };
     emergencyMutation.mutate({
       data: {
         abhaId: formData.get("abhaId") as string,
-        location: { lat: 28.6139, lng: 77.2090, address: formData.get("address") as string },
+        location: { lat: loc.lat, lng: loc.lng, address: formData.get("address") as string },
         emergencyType: formData.get("type") as any,
         severity: formData.get("severity") as any,
       }
@@ -215,7 +237,20 @@ export default function Healthcare() {
                         
                         <div className="space-y-3">
                           <Label className="text-destructive-foreground/80 uppercase tracking-widest text-xs">Incident Location</Label>
-                          <Input name="address" defaultValue="Connaught Place, New Delhi" className="bg-black/40 border-destructive/30 focus-visible:ring-destructive h-12" required />
+                          <div className="flex gap-2">
+                            <Input name="address" defaultValue="Connaught Place, New Delhi" className="bg-black/40 border-destructive/30 focus-visible:ring-destructive h-12 flex-1" required />
+                            <Button type="button" variant="outline" onClick={requestLocation}
+                              className={`h-12 px-4 border-white/20 text-white shrink-0 ${locationStatus === "granted" ? "border-emerald-500/50 text-emerald-400" : ""}`}>
+                              <Navigation size={16} className={locationStatus === "requesting" ? "animate-spin" : ""} />
+                              {locationStatus === "granted" ? " GPS On" : " Locate"}
+                            </Button>
+                          </div>
+                          {locationStatus === "granted" && userLocation && (
+                            <p className="text-[10px] text-emerald-400/80 font-mono">GPS: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</p>
+                          )}
+                          {locationStatus === "denied" && (
+                            <p className="text-[10px] text-yellow-400/80">Location denied — using default (New Delhi)</p>
+                          )}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

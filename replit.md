@@ -75,6 +75,8 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - Payments: Razorpay integration via `razorpay` SDK. Routes: `POST /api/payments/create-order`, `POST /api/payments/verify`, `GET /api/payments/config`. Secrets required: `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`.
 - Analytics: `GET /api/analytics/overview` — real-time system metrics, revenue charts, agent performance, sector distribution, hourly traffic.
 - Invoices: `POST /api/invoices/generate` — GST-compliant invoice generation with automatic CGST/SGST/IGST calculation and amount-in-words (Indian numbering system with Lakh/Crore).
+- Translation: `POST /api/indiastack/translate` — Dictionary-based multi-language translation (Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati, Kannada) with confidence score. Input validated and length-limited.
+- GSTR-2B Invoices: `GET /api/indiastack/gstr2b-invoices` — Dynamic invoice data for GST ITC reconciliation.
 - Depends on: `@workspace/db`, `@workspace/api-zod`, `@workspace/integrations-openai-ai-server`
 - `pnpm --filter @workspace/api-server run dev` — run the dev server
 - `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
