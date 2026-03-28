@@ -54,7 +54,7 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 React + Vite frontend for **Bharat-Automator OS** — The Unified Agentic Mesh command center.
 
-Pages: Command Center dashboard, AI Assistant (chat with BharatOS AI), Architecture (Mermaid.js diagram), Agriculture Agent, Finance & IT Agent, Healthcare Agent (with GPS geolocation), Governance Agent, India Stack Layer (Bhashini live translation with 7 languages), Payments (Razorpay integration with DB storage), Live Analytics (Recharts dashboards with real DB data + auto-refresh), Invoice Generator (GST-compliant tax invoices with PDF download via jspdf), Admin Panel (real-time user data, payment records, activity log with sector breakdown).
+Pages: Command Center dashboard, AI Assistant (chat with BharatOS AI), Architecture (Mermaid.js diagram), Agriculture Agent, Finance & IT Agent, Healthcare Agent (with GPS geolocation), Governance Agent, India Stack Layer (Bhashini live translation with 7 languages), Payments (Razorpay integration with DB storage), Live Analytics (Recharts dashboards with real DB data + auto-refresh), Invoice Generator (GST-compliant tax invoices with PDF download via jspdf), Admin Panel (real-time user data, payment records, activity log with sector breakdown), Weather & Disaster Analytics (real-time weather for 12 Indian cities + earthquake monitoring via Open-Meteo & USGS APIs).
 
 Frontend packages: framer-motion, mermaid, react-syntax-highlighter, date-fns, @workspace/integrations-openai-ai-react, @workspace/replit-auth-web.
 
@@ -78,6 +78,7 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - Translation: `POST /api/indiastack/translate` — Dictionary-based multi-language translation (Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati, Kannada) with confidence score. Input validated and length-limited.
 - GSTR-2B Invoices: `GET /api/indiastack/gstr2b-invoices` — Dynamic invoice data for GST ITC reconciliation.
 - Activity Tracking: `POST /api/activity/track`, `GET /api/activity/feed`, `GET /api/activity/stats`, `GET /api/activity/users` — Real-time user activity tracking with sector breakdown, action counts, IP logging. Auto-middleware tracks all POST requests.
+- Weather: `GET /api/weather/current` — Real-time weather for 12 Indian cities (Open-Meteo API, no key needed). Returns temperature, humidity, wind, rain, pressure, cloud cover, 7-day forecast, and weather alerts. `GET /api/weather/earthquakes` — Seismic activity in Indian subcontinent from USGS (real-time, magnitude 2.0+).
 - Payment History: `GET /api/payments/history` — All payment records with stats (total, verified, revenue). Payments stored in DB on create-order and updated on verify.
 - Depends on: `@workspace/db`, `@workspace/api-zod`, `@workspace/integrations-openai-ai-server`
 - `pnpm --filter @workspace/api-server run dev` — run the dev server

@@ -14,6 +14,7 @@ import paymentsRouter from "./payments";
 import analyticsRouter from "./analytics";
 import invoicesRouter from "./invoices";
 import activityRouter from "./activity";
+import weatherRouter from "./weather";
 import { db } from "@workspace/db";
 import { activitiesTable } from "@workspace/db/schema";
 
@@ -50,5 +51,6 @@ router.use("/payments", paymentsRouter);
 router.use("/analytics", analyticsRouter);
 router.use("/invoices", invoicesRouter);
 router.use("/activity", activityRouter);
+router.use("/weather", weatherRouter);
 
 export default router;
