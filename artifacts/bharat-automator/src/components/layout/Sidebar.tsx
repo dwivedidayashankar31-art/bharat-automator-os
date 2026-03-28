@@ -101,20 +101,23 @@ export function Sidebar({ onNavigate }: SidebarProps) {
     <div className="h-full flex flex-col overflow-y-auto">
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-border/50 shrink-0">
-        <img
-          src={`${import.meta.env.BASE_URL}images/logo.png`}
-          alt="Bharat Automator Logo"
-          className="w-9 h-9 rounded-xl shadow-lg shadow-primary/20 border border-primary/20"
-        />
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 via-primary to-emerald-500 rounded-xl opacity-40 group-hover:opacity-70 blur-md transition-opacity duration-500 animate-pulse" />
+          <img
+            src={`${import.meta.env.BASE_URL}images/logo.png`}
+            alt="Bharat Automator Logo"
+            className="relative w-10 h-10 rounded-xl shadow-xl shadow-primary/30 border border-primary/30 ring-1 ring-primary/10"
+          />
+        </div>
         <div className="flex flex-col">
-          <span className="font-display font-semibold text-[18px] tracking-tight leading-none sidebar-logo-text" style={{ letterSpacing: '0.06em' }}>
+          <span className="font-display font-bold text-[18px] tracking-tight leading-none sidebar-logo-text bg-gradient-to-r from-white via-white to-orange-200 bg-clip-text" style={{ letterSpacing: '0.06em' }}>
             Bharat<span className="text-primary">OS</span>
           </span>
           <span className="text-[10px] text-muted-foreground/60 tracking-wider font-sans font-medium mt-0.5">
             Unified Agentic Mesh
           </span>
         </div>
-        <Badge className="ml-auto text-[9px] bg-primary/20 text-primary border-primary/30 px-1.5 py-0.5 font-sans font-semibold tracking-wide">
+        <Badge className="ml-auto text-[9px] bg-gradient-to-r from-primary/20 to-orange-500/20 text-primary border-primary/30 px-1.5 py-0.5 font-sans font-bold tracking-wide animate-pulse">
           Pro
         </Badge>
       </div>
