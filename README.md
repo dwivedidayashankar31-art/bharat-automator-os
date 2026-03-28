@@ -249,7 +249,7 @@ RBI Compliant
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/bharat-automator-os.git
+git clone https://github.com/dwivedidayashankar31-art/bharat-automator-os.git
 cd bharat-automator-os
 
 # Install dependencies
