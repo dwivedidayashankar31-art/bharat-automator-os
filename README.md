@@ -11,7 +11,7 @@
 
 <br/>
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Visit_App-FF6B1A?style=for-the-badge&logo=googlechrome&logoColor=white)](https://bharat-automator-os.replit.app)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Visit_App-FF6B1A?style=for-the-badge&logo=googlechrome&logoColor=white)](https://universal-agent-mesh.replit.app)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Node.js](https://img.shields.io/badge/Node.js-24-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
